@@ -39,7 +39,14 @@ export class BrowserService {
 
   async open(url: string): Promise<{ title: string; url: string }> {
     const page = await this.getPage();
-    const formattedUrl = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+    const formattedUrl =
+      url.startsWith('http://') ||
+      url.startsWith('https://') ||
+      url.startsWith('data:') ||
+      url.startsWith('file://') ||
+      url.startsWith('about:')
+        ? url
+        : `https://${url}`;
     await page.goto(formattedUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
     const title = await page.title();
     return { title, url: page.url() };
