@@ -7,13 +7,13 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 AUTOSTART_DIR="$HOME/.config/autostart"
 mkdir -p "$AUTOSTART_DIR"
 
-DESKTOP_FILE="$AUTOSTART_DIR/octo-assistant.desktop"
+DESKTOP_FILE="$AUTOSTART_DIR/nova-assistant.desktop"
 
 cat << EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Octo Desktop Assistant
+Name=Nova Desktop Assistant
 Comment=AI Desktop Companion with Gemini Live
 Exec=bash "$ROOT_DIR/scripts/launch.sh"
 Path=$ROOT_DIR

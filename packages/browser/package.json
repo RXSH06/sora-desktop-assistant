@@ -1,7 +1,7 @@
 {
-  "name": "@octo/browser",
+  "name": "@assistant/browser",
   "version": "1.0.0",
-  "description": "Isolated Playwright browser automation tools for Octo Assistant",
+  "description": "Isolated Playwright browser automation tools for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,8 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@octo/tools": "*",
-    "@octo/permissions": "*",
+    "@assistant/tools": "*",
+    "@assistant/permissions": "*",
     "playwright": "^1.50.1"
   },
   "devDependencies": {

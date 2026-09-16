@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, X, Shield, Key, Sparkles, Database, Mic, Globe, Check, AlertCircle } from 'lucide-react';
 import { AppConfig } from '../../shared/ipc.js';
-import { PermissionPolicy, PermissionLevel } from '@octo/permissions';
-import { MemoryItem, MemoryCategory } from '@octo/memory';
+import { PermissionPolicy, PermissionLevel } from '@assistant/permissions';
+import { MemoryItem, MemoryCategory } from '@assistant/memory';
 
 interface SettingsDrawerProps {
   config: AppConfig;
@@ -39,20 +39,20 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const loadPolicies = async () => {
     try {
-      const pols = await window.octoAPI.getPolicies();
+      const pols = await window.assistantAPI.getPolicies();
       setPolicies(pols);
     } catch {}
   };
 
   const loadMemory = async () => {
     try {
-      const mem = await window.octoAPI.getMemory();
+      const mem = await window.assistantAPI.getMemory();
       setMemory(mem);
     } catch {}
   };
 
   const handleUpdatePolicy = async (toolName: string, level: PermissionLevel) => {
-    await window.octoAPI.setPolicy(toolName, level);
+    await window.assistantAPI.setPolicy(toolName, level);
     setPolicies((prev) =>
       prev.map((p) => (p.toolName === toolName ? { ...p, level } : p))
     );
@@ -60,14 +60,14 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const handleAddMemory = async () => {
     if (!newMemKey || !newMemVal) return;
-    await window.octoAPI.setMemory(newMemCat, newMemKey, newMemVal);
+    await window.assistantAPI.setMemory(newMemCat, newMemKey, newMemVal);
     setNewMemKey('');
     setNewMemVal('');
     loadMemory();
   };
 
   const handleDeleteMemory = async (cat: MemoryCategory, key: string) => {
-    await window.octoAPI.deleteMemory(cat, key);
+    await window.assistantAPI.deleteMemory(cat, key);
     loadMemory();
   };
 
@@ -79,7 +79,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const handleStartGoogleAuth = async () => {
     try {
-      const res = await window.octoAPI.startGoogleAuth();
+      const res = await window.assistantAPI.startGoogleAuth();
       if (res.authUrl) {
         window.open(res.authUrl, '_blank');
       }
@@ -96,7 +96,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-950/50">
         <div className="flex items-center space-x-2 text-indigo-400 font-semibold text-sm">
           <Settings size={16} />
-          <span>Octo Assistant Settings</span>
+          <span>Nova Assistant Settings</span>
         </div>
         <button
           onClick={onClose}
@@ -192,7 +192,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <label className="text-gray-200 font-medium block">Launch on OS Boot</label>
-                <span className="text-[11px] text-gray-500">Start Octo Assistant on Ubuntu login</span>
+                <span className="text-[11px] text-gray-500">Start Nova Assistant on Ubuntu login</span>
               </div>
               <input
                 type="checkbox"
@@ -305,7 +305,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 type="text"
                 value={localConfig.wakeWord}
                 onChange={(e) => setLocalConfig({ ...localConfig, wakeWord: e.target.value })}
-                placeholder="hey octo"
+                placeholder="hey nova"
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -342,7 +342,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         {activeTab === 'permissions' && (
           <div className="space-y-3">
             <p className="text-gray-400 text-[11px]">
-              Configure which actions Octo can execute safely vs those that require explicit confirmation or are blocked.
+              Configure which actions Nova can execute safely vs those that require explicit confirmation or are blocked.
             </p>
 
             <div className="divide-y divide-gray-800 max-h-[300px] overflow-y-auto pr-1">
@@ -380,7 +380,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         {activeTab === 'memory' && (
           <div className="space-y-3">
             <p className="text-gray-400 text-[11px]">
-              Stored paths, projects, and shortcuts that Octo references during tasks.
+              Stored paths, projects, and shortcuts that Nova references during tasks.
             </p>
 
             {/* Add memory form */}
@@ -490,7 +490,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
               {localConfig.hasGoogleAuth ? (
                 <button
                   onClick={async () => {
-                    await window.octoAPI.disconnectGoogleAuth();
+                    await window.assistantAPI.disconnectGoogleAuth();
                     setLocalConfig({ ...localConfig, hasGoogleAuth: false });
                   }}
                   className="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-1.5 rounded transition-colors text-xs"

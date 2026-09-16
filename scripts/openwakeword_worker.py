@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenWakeWord background detection worker for Octo Assistant.
+OpenWakeWord background detection worker for Nova Assistant.
 Reads 16kHz 16-bit mono raw PCM from stdin and outputs JSON detections to stdout.
 """
 import sys

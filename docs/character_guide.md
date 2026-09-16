@@ -1,7 +1,7 @@
 # Customizing & Replacing the Character Avatar
 
-The Octo Assistant character engine is decoupled from the agent logic via `@octo/character`.
-The current default renderer is an interactive, animated SVG robot ("Octo") with responsive eyes, antenna LED, glowing chest core, and mouth sync for all 8 states.
+The Nova Assistant character engine is decoupled from the agent logic via `@assistant/character`.
+The current default renderer is an interactive, animated SVG robot ("Nova") with responsive eyes, antenna LED, glowing chest core, and mouth sync for all 8 states.
 
 ## Supported Avatar Types
 

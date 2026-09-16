@@ -5,7 +5,7 @@ import { WakeWordEngine, WakeWordConfig, WakeWordDetectionResult } from './types
 
 export class OpenWakeWordRunner implements WakeWordEngine {
   private config: WakeWordConfig = {
-    wakeWord: 'hey octo',
+    wakeWord: 'hey nova',
     enabled: true,
     sensitivity: 0.6,
   };

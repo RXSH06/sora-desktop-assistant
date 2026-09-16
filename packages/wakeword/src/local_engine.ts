@@ -2,7 +2,7 @@ import { WakeWordEngine, WakeWordConfig, WakeWordDetectionResult } from './types
 
 export class LocalAcousticWakeWordEngine implements WakeWordEngine {
   private config: WakeWordConfig = {
-    wakeWord: 'hey octo',
+    wakeWord: 'hey nova',
     enabled: true,
     sensitivity: 0.6,
   };

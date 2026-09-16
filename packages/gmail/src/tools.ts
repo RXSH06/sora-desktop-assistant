@@ -1,6 +1,6 @@
 import os from 'node:os';
 import path from 'node:path';
-import { AssistantTool, ToolResult } from '@octo/tools';
+import { AssistantTool, ToolResult } from '@assistant/tools';
 import { GmailService } from './service.js';
 
 export function createGmailTools(gmailService: GmailService): AssistantTool[] {

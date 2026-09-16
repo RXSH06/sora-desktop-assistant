@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { google, drive_v3 } from 'googleapis';
-import { GoogleAuthService } from '@octo/gmail';
+import { GoogleAuthService } from '@assistant/gmail';
 
 export interface DriveFileInfo {
   id: string;

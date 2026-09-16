@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { base64ToInt16, int16ToFloat32, float32ToInt16, int16ToBase64, resampleAudio } from '@octo/audio';
+import { base64ToInt16, int16ToFloat32, float32ToInt16, int16ToBase64, resampleAudio } from '@assistant/audio';
 
 interface AudioControllerProps {
   isMuted: boolean;
@@ -65,7 +65,7 @@ export const AudioController: React.FC<AudioControllerProps> = ({ isMuted, onMic
           const int16Data = float32ToInt16(resampledFloat);
           const base64Chunk = int16ToBase64(int16Data);
 
-          window.octoAPI.sendAudioChunk(base64Chunk);
+          window.assistantAPI.sendAudioChunk(base64Chunk);
         };
 
         source.connect(processor);
@@ -105,7 +105,7 @@ export const AudioController: React.FC<AudioControllerProps> = ({ isMuted, onMic
       sampleRate: 24000,
     });
 
-    const cleanupAudioOutput = window.octoAPI.onAudioOutput((pcm24Base64) => {
+    const cleanupAudioOutput = window.assistantAPI.onAudioOutput((pcm24Base64) => {
       try {
         const int16 = base64ToInt16(pcm24Base64);
         const float32 = int16ToFloat32(int16);
@@ -132,7 +132,7 @@ export const AudioController: React.FC<AudioControllerProps> = ({ isMuted, onMic
     });
 
     // Handle Interruption / Barge-in
-    const cleanupInterrupt = window.octoAPI.onAudioInterrupt(() => {
+    const cleanupInterrupt = window.assistantAPI.onAudioInterrupt(() => {
       for (const s of activeSourcesRef.current) {
         try {
           s.stop();

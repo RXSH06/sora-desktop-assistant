@@ -1,6 +1,6 @@
-import { CharacterState, CharacterEvent, ConfirmationRequest } from '@octo/character';
-import { PermissionLevel, AuditLogEntry, PermissionPolicy } from '@octo/permissions';
-import { MemoryItem, MemoryCategory } from '@octo/memory';
+import { CharacterState, CharacterEvent, ConfirmationRequest } from '@assistant/character';
+import { PermissionLevel, AuditLogEntry, PermissionPolicy } from '@assistant/permissions';
+import { MemoryItem, MemoryCategory } from '@assistant/memory';
 
 export interface AppConfig {
   geminiApiKey: string;
@@ -19,7 +19,7 @@ export interface AppConfig {
   hasGoogleAuth: boolean;
 }
 
-export interface OctoAPI {
+export interface NovaAPI {
   // Config
   getConfig(): Promise<AppConfig>;
   updateConfig(config: Partial<AppConfig>): Promise<AppConfig>;
@@ -66,6 +66,6 @@ export interface OctoAPI {
 
 declare global {
   interface Window {
-    octoAPI: OctoAPI;
+    assistantAPI: NovaAPI;
   }
 }

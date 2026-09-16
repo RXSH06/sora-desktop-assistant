@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldAlert, Check, X } from 'lucide-react';
-import { ConfirmationRequest } from '@octo/character';
+import { ConfirmationRequest } from '@assistant/character';
 
 interface ConfirmationDialogProps {
   request: ConfirmationRequest | null;

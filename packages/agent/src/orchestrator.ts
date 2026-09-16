@@ -1,10 +1,10 @@
-import { CharacterController, CharacterState } from '@octo/character';
-import { PermissionManager } from '@octo/permissions';
-import { ToolRegistry } from '@octo/tools';
-import { MemoryStore } from '@octo/memory';
-import { GeminiLiveClient, GeminiLiveToolCall } from '@octo/gemini';
-import { AudioPlaybackQueue } from '@octo/audio';
-import { WakeWordEngine } from '@octo/wakeword';
+import { CharacterController, CharacterState } from '@assistant/character';
+import { PermissionManager } from '@assistant/permissions';
+import { ToolRegistry } from '@assistant/tools';
+import { MemoryStore } from '@assistant/memory';
+import { GeminiLiveClient, GeminiLiveToolCall } from '@assistant/gemini';
+import { AudioPlaybackQueue } from '@assistant/audio';
+import { WakeWordEngine } from '@assistant/wakeword';
 import { TaskContext, TaskStep, AgentLog } from './types.js';
 
 export interface AgentOrchestratorOptions {

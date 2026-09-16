@@ -1,4 +1,4 @@
-import { AssistantTool, ToolResult } from '@octo/tools';
+import { AssistantTool, ToolResult } from '@assistant/tools';
 import { DriveService } from './service.js';
 
 export function createDriveTools(driveService: DriveService): AssistantTool[] {

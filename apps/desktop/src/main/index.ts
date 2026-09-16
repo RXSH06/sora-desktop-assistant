@@ -5,17 +5,17 @@ import os from 'node:os';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
 
-import { DefaultCharacterController } from '@octo/character';
-import { DefaultPermissionManager } from '@octo/permissions';
-import { FileMemoryStore } from '@octo/memory';
-import { ToolRegistry, setNativeClipboard, setDesktopScreenshotProvider } from '@octo/tools';
-import { BrowserService, createBrowserTools } from '@octo/browser';
-import { GoogleAuthService, GmailService, createGmailTools } from '@octo/gmail';
-import { DriveService, createDriveTools } from '@octo/drive';
-import { AudioPlaybackQueue, base64ToInt16 } from '@octo/audio';
-import { createWakeWordEngine } from '@octo/wakeword';
-import { GeminiLiveClient } from '@octo/gemini';
-import { AgentOrchestrator } from '@octo/agent';
+import { DefaultCharacterController } from '@assistant/character';
+import { DefaultPermissionManager } from '@assistant/permissions';
+import { FileMemoryStore } from '@assistant/memory';
+import { ToolRegistry, setNativeClipboard, setDesktopScreenshotProvider } from '@assistant/tools';
+import { BrowserService, createBrowserTools } from '@assistant/browser';
+import { GoogleAuthService, GmailService, createGmailTools } from '@assistant/gmail';
+import { DriveService, createDriveTools } from '@assistant/drive';
+import { AudioPlaybackQueue, base64ToInt16 } from '@assistant/audio';
+import { createWakeWordEngine } from '@assistant/wakeword';
+import { GeminiLiveClient } from '@assistant/gemini';
+import { AgentOrchestrator } from '@assistant/agent';
 import { AppConfig } from '../shared/ipc.js';
 
 // Load environment variables from .env if present
@@ -48,7 +48,7 @@ let appConfig: AppConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'models/gemini-2.0-flash-exp',
   geminiVoice: process.env.GEMINI_VOICE || 'Puck',
-  wakeWord: process.env.WAKE_WORD || 'hey octo',
+  wakeWord: process.env.WAKE_WORD || 'hey nova',
   wakeWordEnabled: process.env.WAKE_WORD_ENABLED !== 'false',
   wakeWordSensitivity: parseFloat(process.env.WAKE_WORD_SENSITIVITY || '0.6'),
   alwaysOnTop: process.env.APP_ALWAYS_ON_TOP !== 'false',
@@ -63,7 +63,7 @@ let appConfig: AppConfig = {
 
 function saveConfigToDisk() {
   try {
-    const configDir = path.join(os.homedir(), '.config', 'octo-assistant');
+    const configDir = path.join(os.homedir(), '.config', 'nova-assistant');
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });
     }
@@ -75,7 +75,7 @@ function saveConfigToDisk() {
 
 function loadConfigFromDisk() {
   try {
-    const filePath = path.join(os.homedir(), '.config', 'octo-assistant', 'config.json');
+    const filePath = path.join(os.homedir(), '.config', 'nova-assistant', 'config.json');
     if (fs.existsSync(filePath)) {
       const saved = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       appConfig = { ...appConfig, ...saved };
@@ -243,7 +243,7 @@ function initializeAssistant() {
     apiKey: appConfig.geminiApiKey,
     model: appConfig.geminiModel,
     voice: appConfig.geminiVoice as any,
-    systemInstruction: `You are Octo, a helpful, proactive, and charming desktop AI companion living on Ubuntu Linux.
+    systemInstruction: `You are Nova, a helpful, proactive, and charming desktop AI companion living on Ubuntu Linux.
 You have access to safe desktop tools to help the user manage files, control applications, search emails in Gmail, automate web browser actions, and interact with the system.
 Be concise, polite, natural, and helpful. Always confirm before deleting or sending emails.
 ${memoryStore.getSystemPromptContext()}`,
@@ -290,11 +290,11 @@ function setupTray() {
   }
   const trayIcon = nativeImage.createFromBuffer(iconCanvas, { width: size, height: size });
   tray = new Tray(trayIcon);
-  tray.setToolTip('Octo Desktop Assistant');
+  tray.setToolTip('Nova Desktop Assistant');
 
   const updateMenu = () => {
     const contextMenu = Menu.buildFromTemplate([
-      { label: 'Octo AI Assistant', enabled: false },
+      { label: 'Nova AI Assistant', enabled: false },
       { type: 'separator' },
       {
         label: isMuted ? 'Unmute Microphone' : 'Mute Microphone',

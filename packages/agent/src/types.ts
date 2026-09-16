@@ -1,5 +1,5 @@
-import { CharacterState } from '@octo/character';
-import { ToolResult } from '@octo/tools';
+import { CharacterState } from '@assistant/character';
+import { ToolResult } from '@assistant/tools';
 
 export interface TaskStep {
   id: string;

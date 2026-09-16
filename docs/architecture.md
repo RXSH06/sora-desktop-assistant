@@ -1,8 +1,8 @@
-# Octo Desktop Assistant: Architecture & System Design
+# Nova Desktop Assistant: Architecture & System Design
 
 ## 1. System Overview
 
-Octo is a production-grade, transparent floating AI desktop companion for Ubuntu 24.04 Linux. It integrates **Google Gemini Live API** for real-time voice and reasoning with a secure multi-layer agent orchestration system to execute real computer control tasks.
+Nova is a production-grade, transparent floating AI desktop companion for Ubuntu 24.04 Linux. It integrates **Google Gemini Live API** for real-time voice and reasoning with a secure multi-layer agent orchestration system to execute real computer control tasks.
 
 ```
                     ┌─────────────────────────┐
@@ -11,7 +11,7 @@ Octo is a production-grade, transparent floating AI desktop companion for Ubuntu
                     └───────────┬─────────────┘
                                 │
                   ┌─────────────┴─────────────┐
-                  │    Octo Assistant GUI     │
+                  │    Nova Assistant GUI     │
                   │   Transparent Frameless   │
                   │  Always-on-Top Floating   │
                   └─────────────┬─────────────┘
@@ -36,7 +36,7 @@ Octo is a production-grade, transparent floating AI desktop companion for Ubuntu
 ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
 │ Local Wake   │        │ Gemini Live  │        │   Memory     │
 │ Word Detector│        │ WebSocket    │        │   Storage    │
-│ ("Hey Octo") │        │ Bi-di Stream │        │  (SQLite/JSON│
+│ ("Hey Nova") │        │ Bi-di Stream │        │  (SQLite/JSON│
 └──────────────┘        └───────┬──────┘        └──────────────┘
                                 │ Tool Call
                                 ▼
@@ -67,7 +67,7 @@ The character controller maintains the following lifecycle states:
 | State | Visual Behavior | Triggers |
 | :--- | :--- | :--- |
 | `IDLE` | Soft floating, periodic eye blinking, ambient cyan glow | Application ready, waiting for wake word or prompt |
-| `LISTENING` | Perked antenna, wide eyes, concentric radar waves | "Hey Octo" wake word detected or Ctrl+Space pressed |
+| `LISTENING` | Perked antenna, wide eyes, concentric radar waves | "Hey Nova" wake word detected or Ctrl+Space pressed |
 | `THINKING` | Curious asymmetric tilt, rotating iris halo, purple glow | Speech sent to Gemini, waiting for response |
 | `EXECUTING` | High-tech scanning slit visor, radar beam, orange aura | Tool call received from Gemini, performing operation |
 | `SPEAKING` | Rhythmic mouth wave synchronized with Gemini 24kHz audio | Incoming audio chunks from Gemini Live API |

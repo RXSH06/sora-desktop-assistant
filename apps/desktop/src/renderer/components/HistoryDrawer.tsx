@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { History, X, Activity, CheckCircle, AlertTriangle, ShieldX } from 'lucide-react';
-import { AuditLogEntry } from '@octo/permissions';
+import { AuditLogEntry } from '@assistant/permissions';
 
 interface HistoryDrawerProps {
   isOpen: boolean;
@@ -20,7 +20,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({ isOpen, onClose })
 
   const loadLogs = async () => {
     try {
-      const audit = await window.octoAPI.getAuditLogs();
+      const audit = await window.assistantAPI.getAuditLogs();
       setLogs(audit);
     } catch {}
   };

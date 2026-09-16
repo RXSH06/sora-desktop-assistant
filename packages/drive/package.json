@@ -1,7 +1,7 @@
 {
-  "name": "@octo/drive",
+  "name": "@assistant/drive",
   "version": "1.0.0",
-  "description": "Google Drive tools for Octo Desktop Assistant",
+  "description": "Google Drive tools for Nova Desktop Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,9 +9,9 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@octo/tools": "*",
-    "@octo/permissions": "*",
-    "@octo/gmail": "*",
+    "@assistant/tools": "*",
+    "@assistant/permissions": "*",
+    "@assistant/gmail": "*",
     "googleapis": "^146.0.0"
   },
   "devDependencies": {

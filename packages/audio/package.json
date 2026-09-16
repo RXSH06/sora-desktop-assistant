@@ -1,7 +1,7 @@
 {
-  "name": "@octo/audio",
+  "name": "@assistant/audio",
   "version": "1.0.0",
-  "description": "Real-time PCM audio streaming, buffering, and interruption handling for Octo Assistant",
+  "description": "Real-time PCM audio streaming, buffering, and interruption handling for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

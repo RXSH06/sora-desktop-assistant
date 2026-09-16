@@ -1,7 +1,7 @@
 {
-  "name": "@octo/tools",
+  "name": "@assistant/tools",
   "version": "1.0.0",
-  "description": "Secure tool registry and system automation tools for Octo Assistant",
+  "description": "Secure tool registry and system automation tools for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,8 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@octo/permissions": "*",
-    "@octo/memory": "*"
+    "@assistant/permissions": "*",
+    "@assistant/memory": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

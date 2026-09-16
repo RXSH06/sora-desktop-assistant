@@ -13,7 +13,7 @@ import {
 } from '../packages/tools/src/index.js';
 
 describe('Filesystem Tools', () => {
-  const testDir = path.join(os.tmpdir(), `octo_fs_test_${Date.now()}`);
+  const testDir = path.join(os.tmpdir(), `nova_fs_test_${Date.now()}`);
 
   beforeEach(() => {
     fs.mkdirSync(testDir, { recursive: true });
@@ -34,11 +34,11 @@ describe('Filesystem Tools', () => {
 
   it('reads file content and inspects metadata', async () => {
     const filePath = path.join(testDir, 'sample.txt');
-    fs.writeFileSync(filePath, 'Hello Octo AI Assistant!', 'utf-8');
+    fs.writeFileSync(filePath, 'Hello Nova AI Assistant!', 'utf-8');
 
     const readRes = await readFileTool.execute({ path: filePath });
     expect(readRes.success).toBe(true);
-    expect((readRes.output as any).content).toBe('Hello Octo AI Assistant!');
+    expect((readRes.output as any).content).toBe('Hello Nova AI Assistant!');
 
     const infoRes = await getFileInfoTool.execute({ path: filePath });
     expect(infoRes.success).toBe(true);

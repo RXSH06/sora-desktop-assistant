@@ -1,4 +1,4 @@
-# Octo Assistant: Tool Registry & Developer Guide
+# Nova Assistant: Tool Registry & Developer Guide
 
 ## 1. Built-in Tools
 
@@ -57,10 +57,10 @@
 
 ## 2. Adding a New Custom Tool
 
-To add a new tool to Octo Assistant, implement the `AssistantTool` interface:
+To add a new tool to Nova Assistant, implement the `AssistantTool` interface:
 
 ```typescript
-import { AssistantTool, ToolResult } from '@octo/tools';
+import { AssistantTool, ToolResult } from '@assistant/tools';
 
 export const myCustomTool: AssistantTool = {
   name: 'my_custom_tool',

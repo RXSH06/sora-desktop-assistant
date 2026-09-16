@@ -2,7 +2,7 @@
 set -e
 
 echo "=========================================================="
-echo "    Octo Desktop AI Assistant - Ubuntu 24.04 Setup       "
+echo "    Nova Desktop AI Assistant - Ubuntu 24.04 Setup       "
 echo "=========================================================="
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,6 +41,6 @@ chmod +x "$ROOT_DIR/scripts/launch.sh" "$ROOT_DIR/scripts/autostart.sh" "$ROOT_D
 
 echo "=========================================================="
 echo "✓ Installation complete!"
-echo "To launch Octo Assistant:"
+echo "To launch Nova Assistant:"
 echo "    ./scripts/launch.sh"
 echo "=========================================================="

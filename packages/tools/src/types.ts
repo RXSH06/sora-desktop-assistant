@@ -1,4 +1,4 @@
-import { PermissionLevel } from '@octo/permissions';
+import { PermissionLevel } from '@assistant/permissions';
 
 export interface ToolParameterSchema {
   type: string;

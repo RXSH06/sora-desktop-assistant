@@ -1,4 +1,4 @@
-# Octo Desktop Assistant 🤖
+# Nova Desktop Assistant 🤖
 
 A production-quality **Linux desktop AI assistant** for Ubuntu 24.04 powered by **Google Gemini Live API**, featuring an animated floating character living in the bottom-right corner of your desktop, offline wake word detection, real-time voice interaction with barge-in interruption, and a secure multi-layer computer control agent architecture.
 
@@ -8,7 +8,7 @@ A production-quality **Linux desktop AI assistant** for Ubuntu 24.04 powered by 
 
 - 🛸 **Living Floating Character**: Stays unobtrusively in the bottom-right corner of your Ubuntu desktop, draggable, resizable, always-on-top, with transparent background.
 - 🎭 **8 Reactive Character States**: `IDLE`, `LISTENING`, `THINKING`, `EXECUTING`, `SPEAKING`, `SUCCESS`, `ERROR`, and `WAITING_FOR_CONFIRMATION`.
-- 👂 **Offline Local Wake Word**: Say *"Hey Octo"* to trigger listening without constantly streaming your microphone to the cloud.
+- 👂 **Offline Local Wake Word**: Say *"Hey Nova"* to trigger listening without constantly streaming your microphone to the cloud.
 - ⚡ **Gemini Live Multimodal Voice**: Ultra-low latency bidirectional audio streaming (16kHz PCM input, 24kHz PCM output) with interruption / barge-in ("Stop!").
 - 🛡️ **Secure Agent & Permission Architecture**:
   - `SAFE`: Automated execution for safe read-only queries (e.g. search files, list running apps).
@@ -98,7 +98,7 @@ GOOGLE_CLIENT_SECRET=your_client_secret
 GOOGLE_REDIRECT_URI=http://localhost:8089/oauth2callback
 
 # Wake Word Settings
-WAKE_WORD="hey octo"
+WAKE_WORD="hey nova"
 WAKE_WORD_ENABLED=true
 WAKE_WORD_SENSITIVITY=0.6
 
@@ -133,21 +133,21 @@ npm start
 
 ## 4. How to Use
 
-1. **Wake Word**: Say **"Hey Octo"**. The character will raise its antenna and enter `LISTENING` mode.
+1. **Wake Word**: Say **"Hey Nova"**. The character will raise its antenna and enter `LISTENING` mode.
 2. **Keyboard Shortcut**: Press `Ctrl + Space` anytime to trigger listening without speaking the wake word.
 3. **Voice Conversation & Multi-Step Agent Tasks**:
-   - *"Hey Octo, what is 25 times 4?"*
+   - *"Hey Nova, what is 25 times 4?"*
    - *"Open VS Code."*
    - *"Find my ESP32 project."*
    - *"Search my inbox for the latest email from Rahul about the PCB, download the BOM attachment, rename it final_bom.xlsx, and copy it to my Companion Robot folder."*
 4. **Interruption (Barge-in)**:
-   Say **"Stop"** or click anywhere while Octo is speaking to immediately halt audio playback and speech output.
+   Say **"Stop"** or click anywhere while Nova is speaking to immediately halt audio playback and speech output.
 5. **Action Confirmation**:
-   When Octo needs to perform an operation requiring confirmation (such as deleting a file or sending an email), it displays an on-screen dialog and asks:
+   When Nova needs to perform an operation requiring confirmation (such as deleting a file or sending an email), it displays an on-screen dialog and asks:
    > *"This will delete `/path/to/file`. Continue?"*
    You can say **"Yes"** or click **"Allow"**.
 6. **Emergency Stop**:
-   Press `Ctrl + Shift + Esc` at any moment to cancel active tools, abort browser actions, and reset Octo to idle.
+   Press `Ctrl + Shift + Esc` at any moment to cancel active tools, abort browser actions, and reset Nova to idle.
 
 ---
 
@@ -159,14 +159,14 @@ To enable Gmail and Google Drive tools:
 3. Under **OAuth consent screen**, select External, add your email under test users.
 4. Under **Credentials**, create an **OAuth 2.0 Client ID** (Application Type: *Web application*).
 5. Add Authorized Redirect URI: `http://localhost:8089/oauth2callback`.
-6. Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env` or paste them into Octo's **Settings > Google OAuth** panel.
-7. Click **"Connect Gmail & Google Drive"**. Your default browser will open to authenticate. Tokens are encrypted locally in `~/.config/octo-assistant/`.
+6. Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env` or paste them into Nova's **Settings > Google OAuth** panel.
+7. Click **"Connect Gmail & Google Drive"**. Your default browser will open to authenticate. Tokens are encrypted locally in `~/.config/nova-assistant/`.
 
 ---
 
 ## 6. Offline Wake Word Setup
 
-Octo includes a dual wake-word architecture:
+Nova includes a dual wake-word architecture:
 1. **Acoustic Syllabic Engine (Default)**: Zero external binary dependencies, runs completely offline, optimized for "Hey Oc-to" cadence.
 2. **OpenWakeWord Engine**: Uses ONNX models for neural keyword spotting.
    To use openWakeWord:
@@ -179,11 +179,11 @@ Octo includes a dual wake-word architecture:
 
 ## 7. Enable Autostart on Ubuntu Boot
 
-To make Octo launch automatically upon logging into Ubuntu:
+To make Nova launch automatically upon logging into Ubuntu:
 ```bash
 ./scripts/autostart.sh
 ```
-This generates `~/.config/autostart/octo-assistant.desktop`.
+This generates `~/.config/autostart/nova-assistant.desktop`.
 
 ---
 

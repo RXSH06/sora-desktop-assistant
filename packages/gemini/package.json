@@ -1,7 +1,7 @@
 {
-  "name": "@octo/gemini",
+  "name": "@assistant/gemini",
   "version": "1.0.0",
-  "description": "Gemini Live API client and WebSocket streaming for Octo Assistant",
+  "description": "Gemini Live API client and WebSocket streaming for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@google/genai": "^2.22.0",
-    "@octo/tools": "*",
-    "@octo/audio": "*",
+    "@assistant/tools": "*",
+    "@assistant/audio": "*",
     "ws": "^8.18.0"
   },
   "devDependencies": {

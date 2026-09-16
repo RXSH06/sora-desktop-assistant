@@ -1,7 +1,7 @@
 {
-  "name": "@octo/memory",
+  "name": "@assistant/memory",
   "version": "1.0.0",
-  "description": "Modular long-term memory system for Octo Desktop Assistant",
+  "description": "Modular long-term memory system for Nova Desktop Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

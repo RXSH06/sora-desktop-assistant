@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { OctoAPI, AppConfig } from '../shared/ipc.js';
-import { CharacterEvent, ConfirmationRequest } from '@octo/character';
-import { PermissionLevel } from '@octo/permissions';
-import { MemoryCategory } from '@octo/memory';
+import { NovaAPI, AppConfig } from '../shared/ipc.js';
+import { CharacterEvent, ConfirmationRequest } from '@assistant/character';
+import { PermissionLevel } from '@assistant/permissions';
+import { MemoryCategory } from '@assistant/memory';
 
-const api: OctoAPI = {
+const api: NovaAPI = {
   getConfig: () => ipcRenderer.invoke('get-config'),
   updateConfig: (config: Partial<AppConfig>) => ipcRenderer.invoke('update-config', config),
 
@@ -78,4 +78,4 @@ const api: OctoAPI = {
   toggleDrawer: (open: boolean) => ipcRenderer.invoke('toggle-drawer', open),
 };
 
-contextBridge.exposeInMainWorld('octoAPI', api);
+contextBridge.exposeInMainWorld('assistantAPI', api);

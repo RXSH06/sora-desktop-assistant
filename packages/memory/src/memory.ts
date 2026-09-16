@@ -11,7 +11,7 @@ export class FileMemoryStore implements MemoryStore {
     if (customPath) {
       this.filePath = customPath;
     } else {
-      const configDir = path.join(os.homedir(), '.config', 'octo-assistant');
+      const configDir = path.join(os.homedir(), '.config', 'nova-assistant');
       if (!fs.existsSync(configDir)) {
         try {
           fs.mkdirSync(configDir, { recursive: true });
@@ -46,7 +46,7 @@ export class FileMemoryStore implements MemoryStore {
     this.set('frequent_paths', 'home', home, 'User home directory');
     this.set('frequent_paths', 'projects', path.join(home, 'Projects'), 'Standard projects folder');
     this.set('projects', 'companion robot', path.join(home, 'Projects', 'Companion Robot'), 'Companion Robot project directory');
-    this.set('assistant_preferences', 'wake_word', 'hey octo', 'Configured wake word');
+    this.set('assistant_preferences', 'wake_word', 'hey nova', 'Configured wake word');
     this.save();
   }
 

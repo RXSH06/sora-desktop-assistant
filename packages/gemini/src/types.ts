@@ -1,4 +1,4 @@
-import { GeminiFunctionDeclaration } from '@octo/tools';
+import { GeminiFunctionDeclaration } from '@assistant/tools';
 
 export type GeminiVoice = 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Aoede';
 

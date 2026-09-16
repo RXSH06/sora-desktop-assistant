@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CharacterState, ConfirmationRequest } from '@octo/character';
+import { CharacterState, ConfirmationRequest } from '@assistant/character';
 import { AppConfig } from '../shared/ipc.js';
 import { Character } from './components/Character.js';
 import { SpeechBubble } from './components/SpeechBubble.js';
@@ -19,7 +19,7 @@ export const App: React.FC = () => {
     geminiApiKey: '',
     geminiModel: 'models/gemini-2.0-flash-exp',
     geminiVoice: 'Puck',
-    wakeWord: 'hey octo',
+    wakeWord: 'hey nova',
     wakeWordEnabled: true,
     wakeWordSensitivity: 0.6,
     alwaysOnTop: true,
@@ -40,12 +40,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     // Load configuration
-    window.octoAPI.getConfig().then((cfg) => {
+    window.assistantAPI.getConfig().then((cfg) => {
       if (cfg) setConfig(cfg);
     });
 
     // Subscribe to Character Events
-    const unsubChar = window.octoAPI.onCharacterEvent((event) => {
+    const unsubChar = window.assistantAPI.onCharacterEvent((event) => {
       setCharacterState(event.state);
       if (event.type === 'speech') {
         setSpeechText(event.text || '');
@@ -55,7 +55,7 @@ export const App: React.FC = () => {
     });
 
     // Subscribe to Confirmation Requests
-    const unsubConf = window.octoAPI.onConfirmationRequired((req) => {
+    const unsubConf = window.assistantAPI.onConfirmationRequired((req) => {
       setConfirmationReq(req);
     });
 
@@ -68,12 +68,12 @@ export const App: React.FC = () => {
   const handleToggleDrawer = (drawer: 'settings' | 'history') => {
     const next = activeDrawer === drawer ? null : drawer;
     setActiveDrawer(next);
-    window.octoAPI.toggleDrawer(next !== null);
+    window.assistantAPI.toggleDrawer(next !== null);
   };
 
   const handleCloseDrawers = () => {
     setActiveDrawer(null);
-    window.octoAPI.toggleDrawer(false);
+    window.assistantAPI.toggleDrawer(false);
   };
 
   const handleSendPrompt = async () => {
@@ -81,7 +81,7 @@ export const App: React.FC = () => {
     const prompt = textInput.trim();
     setTextInput('');
     setShowInput(false);
-    await window.octoAPI.sendPrompt(prompt);
+    await window.assistantAPI.sendPrompt(prompt);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -92,16 +92,16 @@ export const App: React.FC = () => {
 
   const handleConfirm = async (id: string) => {
     setConfirmationReq(null);
-    await window.octoAPI.resolveConfirmation(id, true);
+    await window.assistantAPI.resolveConfirmation(id, true);
   };
 
   const handleDeny = async (id: string) => {
     setConfirmationReq(null);
-    await window.octoAPI.resolveConfirmation(id, false);
+    await window.assistantAPI.resolveConfirmation(id, false);
   };
 
   const handleSaveConfig = async (updated: Partial<AppConfig>) => {
-    const newCfg = await window.octoAPI.updateConfig(updated);
+    const newCfg = await window.assistantAPI.updateConfig(updated);
     setConfig(newCfg);
   };
 
@@ -113,13 +113,13 @@ export const App: React.FC = () => {
       <div className="w-full flex items-center justify-between px-2 py-1 mb-1 text-gray-400 bg-gray-900/60 rounded-lg backdrop-blur-sm border border-gray-800/60 app-drag-region cursor-move">
         <div className="flex items-center space-x-1 text-[11px] font-medium tracking-wide">
           <GripHorizontal size={13} className="text-gray-500" />
-          <span className="text-indigo-400 font-bold">OCTO</span>
+          <span className="text-indigo-400 font-bold">NOVA</span>
           <span className="text-gray-500 text-[9px] uppercase">{characterState}</span>
         </div>
 
         <div className="flex items-center space-x-1 app-no-drag">
           <button
-            onClick={() => window.octoAPI.minimizeWindow()}
+            onClick={() => window.assistantAPI.minimizeWindow()}
             className="p-1 hover:text-white hover:bg-gray-800 rounded transition-colors"
             title="Minimize"
           >
@@ -208,7 +208,7 @@ export const App: React.FC = () => {
             onClick={() => {
               const next = !isMuted;
               setIsMuted(next);
-              window.octoAPI.setMicMuted(next);
+              window.assistantAPI.setMicMuted(next);
             }}
             className={`p-1.5 rounded-full transition-colors ${
               isMuted ? 'text-rose-400 hover:bg-rose-950/50' : 'text-gray-300 hover:bg-gray-800'
@@ -262,7 +262,7 @@ export const App: React.FC = () => {
 
           {/* Emergency Stop Button */}
           <button
-            onClick={() => window.octoAPI.emergencyStop()}
+            onClick={() => window.assistantAPI.emergencyStop()}
             className="p-1.5 text-rose-500 hover:text-rose-400 hover:bg-rose-950/60 rounded-full transition-colors"
             title="Emergency Stop (Ctrl+Shift+Esc)"
           >

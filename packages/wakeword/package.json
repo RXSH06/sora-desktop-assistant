@@ -1,7 +1,7 @@
 {
-  "name": "@octo/wakeword",
+  "name": "@assistant/wakeword",
   "version": "1.0.0",
-  "description": "Offline local wake-word detection engine for Octo Assistant",
+  "description": "Offline local wake-word detection engine for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,7 +9,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@octo/audio": "*"
+    "@assistant/audio": "*"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

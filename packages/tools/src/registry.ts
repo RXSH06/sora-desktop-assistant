@@ -1,4 +1,4 @@
-import { PermissionManager } from '@octo/permissions';
+import { PermissionManager } from '@assistant/permissions';
 import { AssistantTool, ToolResult, AgentContext, GeminiFunctionDeclaration } from './types.js';
 import { filesystemTools } from './filesystem.js';
 import { applicationTools } from './applications.js';

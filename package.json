@@ -1,5 +1,5 @@
 {
-  "name": "octo-desktop-assistant",
+  "name": "nova-desktop-assistant",
   "version": "1.0.0",
   "description": "Production-quality Linux desktop AI assistant for Ubuntu 24.04 powered by Gemini Live",
   "private": true,
@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "npm run --workspace=apps/desktop dev",
     "build": "npm run build:packages && npm run --workspace=apps/desktop build",
-    "build:packages": "npm run --workspace=@octo/permissions build && npm run --workspace=@octo/character build && npm run --workspace=@octo/memory build && npm run --workspace=@octo/audio build && npm run --workspace=@octo/tools build && npm run --workspace=@octo/wakeword build && npm run --workspace=@octo/browser build && npm run --workspace=@octo/gmail build && npm run --workspace=@octo/drive build && npm run --workspace=@octo/gemini build && npm run --workspace=@octo/agent build",
+    "build:packages": "npm run --workspace=@assistant/permissions build && npm run --workspace=@assistant/character build && npm run --workspace=@assistant/memory build && npm run --workspace=@assistant/audio build && npm run --workspace=@assistant/tools build && npm run --workspace=@assistant/wakeword build && npm run --workspace=@assistant/browser build && npm run --workspace=@assistant/gmail build && npm run --workspace=@assistant/drive build && npm run --workspace=@assistant/gemini build && npm run --workspace=@assistant/agent build",
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "npm run --workspace=apps/desktop start"

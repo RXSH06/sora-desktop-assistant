@@ -1,7 +1,7 @@
 {
-  "name": "@octo/permissions",
+  "name": "@assistant/permissions",
   "version": "1.0.0",
-  "description": "Permission manager and security guardrails for Octo Desktop Assistant",
+  "description": "Permission manager and security guardrails for Nova Desktop Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

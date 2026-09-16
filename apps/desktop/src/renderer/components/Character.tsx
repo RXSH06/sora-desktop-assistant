@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CharacterState } from '@octo/character';
+import { CharacterState } from '@assistant/character';
 
 interface CharacterProps {
   state: CharacterState;
@@ -46,14 +46,14 @@ export const Character: React.FC<CharacterProps> = ({ state, size = 180, onClick
       onClick={onClick}
       className="relative flex items-center justify-center cursor-pointer transition-transform duration-300 hover:scale-105 select-none app-no-drag"
       style={{ width: `${size}px`, height: `${size}px` }}
-      title={`Octo: ${state} (Click to interact)`}
+      title={`Nova: ${state} (Click to interact)`}
     >
       <svg
         viewBox="0 0 200 200"
         className="w-full h-full drop-shadow-2xl animate-float overflow-visible"
       >
         <defs>
-          <radialGradient id="octoGlow" cx="50%" cy="50%" r="50%">
+          <radialGradient id="novaGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor={stateTheme.glow} />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
@@ -69,7 +69,7 @@ export const Character: React.FC<CharacterProps> = ({ state, size = 180, onClick
         </defs>
 
         {/* Ambient aura glow behind character */}
-        <circle cx="100" cy="105" r="75" fill="url(#octoGlow)" className="animate-glow" />
+        <circle cx="100" cy="105" r="75" fill="url(#novaGlow)" className="animate-glow" />
 
         {/* Floating Left & Right magnetic thruster hands */}
         <g className="transition-all duration-300">

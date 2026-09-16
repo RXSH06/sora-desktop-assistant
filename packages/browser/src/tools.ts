@@ -1,4 +1,4 @@
-import { AssistantTool, ToolResult } from '@octo/tools';
+import { AssistantTool, ToolResult } from '@assistant/tools';
 import { BrowserService } from './service.js';
 
 export function createBrowserTools(browserService: BrowserService): AssistantTool[] {

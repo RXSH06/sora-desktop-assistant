@@ -1,7 +1,7 @@
 {
-  "name": "@octo/gmail",
+  "name": "@assistant/gmail",
   "version": "1.0.0",
-  "description": "Secure Gmail API integration and email tools for Octo Assistant",
+  "description": "Secure Gmail API integration and email tools for Nova Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -9,8 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@octo/tools": "*",
-    "@octo/permissions": "*",
+    "@assistant/tools": "*",
+    "@assistant/permissions": "*",
     "googleapis": "^146.0.0"
   },
   "devDependencies": {
