@@ -91,7 +91,10 @@ export class GeminiLiveClient {
   private sendSetupMessage(): void {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return;
 
-    const model = this.config.model || 'models/gemini-2.0-flash-exp';
+    let model = this.config.model || 'models/gemini-2.0-flash-exp';
+    if (!model.startsWith('models/')) {
+      model = `models/${model}`;
+    }
     const voice = this.config.voice || 'Puck';
 
     const setupMsg: Record<string, unknown> = {
