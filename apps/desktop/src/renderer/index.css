@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 @keyframes floatBob {
   0%, 100% {
     transform: translateY(0px) rotate(0deg);

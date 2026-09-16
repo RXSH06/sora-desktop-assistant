@@ -3,6 +3,9 @@ import { Settings, X, Shield, Key, Sparkles, Database, Mic, Globe, Check, AlertC
 import { AppConfig } from '../../shared/ipc.js';
 import { PermissionPolicy, PermissionLevel } from '@assistant/permissions';
 import { MemoryItem, MemoryCategory } from '@assistant/memory';
+import { getAssistantAPI } from '../api.js';
+
+const api = getAssistantAPI();
 
 interface SettingsDrawerProps {
   config: AppConfig;
@@ -39,20 +42,20 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const loadPolicies = async () => {
     try {
-      const pols = await window.assistantAPI.getPolicies();
+      const pols = await api.getPolicies();
       setPolicies(pols);
     } catch {}
   };
 
   const loadMemory = async () => {
     try {
-      const mem = await window.assistantAPI.getMemory();
+      const mem = await api.getMemory();
       setMemory(mem);
     } catch {}
   };
 
   const handleUpdatePolicy = async (toolName: string, level: PermissionLevel) => {
-    await window.assistantAPI.setPolicy(toolName, level);
+    await api.setPolicy(toolName, level);
     setPolicies((prev) =>
       prev.map((p) => (p.toolName === toolName ? { ...p, level } : p))
     );
@@ -60,14 +63,14 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const handleAddMemory = async () => {
     if (!newMemKey || !newMemVal) return;
-    await window.assistantAPI.setMemory(newMemCat, newMemKey, newMemVal);
+    await api.setMemory(newMemCat, newMemKey, newMemVal);
     setNewMemKey('');
     setNewMemVal('');
     loadMemory();
   };
 
   const handleDeleteMemory = async (cat: MemoryCategory, key: string) => {
-    await window.assistantAPI.deleteMemory(cat, key);
+    await api.deleteMemory(cat, key);
     loadMemory();
   };
 
@@ -79,7 +82,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
   const handleStartGoogleAuth = async () => {
     try {
-      const res = await window.assistantAPI.startGoogleAuth();
+      const res = await api.startGoogleAuth();
       if (res.authUrl) {
         window.open(res.authUrl, '_blank');
       }
@@ -490,7 +493,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
               {localConfig.hasGoogleAuth ? (
                 <button
                   onClick={async () => {
-                    await window.assistantAPI.disconnectGoogleAuth();
+                    await api.disconnectGoogleAuth();
                     setLocalConfig({ ...localConfig, hasGoogleAuth: false });
                   }}
                   className="w-full bg-rose-600 hover:bg-rose-500 text-white font-medium py-1.5 rounded transition-colors text-xs"

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && tsc -p tsconfig.electron.json",
+    "build": "tsc -b && vite build && tsc -p tsconfig.electron.json && cp src/preload/index.cjs dist-electron/preload/index.cjs",
     "start": "electron ."
   },
   "dependencies": {

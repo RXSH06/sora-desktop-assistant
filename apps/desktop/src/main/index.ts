@@ -4,6 +4,10 @@ import fs from 'node:fs';
 import os from 'node:os';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
+import { spawn, ChildProcess } from 'node:child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import { DefaultCharacterController } from '@assistant/character';
 import { DefaultPermissionManager } from '@assistant/permissions';
@@ -85,17 +89,94 @@ function loadConfigFromDisk() {
   }
 }
 
+let micProcess: ChildProcess | null = null;
+let nativeMicRunning = false;
+
+function startNativeMicCapture() {
+  if (micProcess || !appConfig.wakeWordEnabled) return;
+
+  try {
+    if (!fs.existsSync('/usr/bin/arecord')) {
+      console.log('[Native Mic] /usr/bin/arecord not found, falling back to Web Audio');
+      return;
+    }
+
+    micProcess = spawn('/usr/bin/arecord', [
+      '-q',
+      '-r', '16000',
+      '-c', '1',
+      '-f', 'S16_LE',
+      '-t', 'raw',
+    ]);
+
+    nativeMicRunning = true;
+    console.log('[Native Mic] arecord capture started for background wake word listening');
+
+    micProcess.stdout?.on('data', (chunk: Buffer) => {
+      if (isMuted) return;
+
+      const int16 = new Int16Array(
+        chunk.buffer,
+        chunk.byteOffset,
+        Math.floor(chunk.length / 2)
+      );
+
+      // Feed chunk to local acoustic wake word engine
+      wakeWordEngine?.processAudioChunk(int16);
+
+      // If active conversation listening is on, stream to Gemini Live
+      if (characterController?.getState() === 'LISTENING') {
+        geminiClient?.sendAudioChunk(chunk.toString('base64'));
+      }
+    });
+
+    micProcess.stderr?.on('data', (err) => {
+      console.warn('[Native Mic arecord stderr]:', err.toString());
+    });
+
+    micProcess.on('error', (err) => {
+      console.warn('[Native Mic arecord error]:', err.message);
+      micProcess = null;
+      nativeMicRunning = false;
+    });
+
+    micProcess.on('exit', () => {
+      micProcess = null;
+      nativeMicRunning = false;
+    });
+  } catch (err) {
+    console.warn('[Native Mic] Could not start arecord:', err);
+  }
+}
+
+function stopNativeMicCapture() {
+  if (micProcess) {
+    micProcess.kill('SIGINT');
+    micProcess = null;
+    nativeMicRunning = false;
+    console.log('[Native Mic] arecord capture stopped');
+  }
+}
+
 function createWindow() {
   loadConfigFromDisk();
 
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize;
+  const { width: screenWidth, height: screenHeight, x: workAreaX, y: workAreaY } = primaryDisplay.workArea;
 
   const initialWidth = 380;
   const initialHeight = 440;
   // Position in bottom-right corner with 24px margin
-  const initialX = Math.round(screenWidth - initialWidth - 24);
-  const initialY = Math.round(screenHeight - initialHeight - 24);
+  const initialX = Math.round(workAreaX + screenWidth - initialWidth - 24);
+  const initialY = Math.round(workAreaY + screenHeight - initialHeight - 24);
+
+  const preloadCandidates = [
+    path.join(__dirname, '../preload/index.cjs'),
+    path.join(__dirname, '../../src/preload/index.cjs'),
+    path.join(process.cwd(), 'apps/desktop/src/preload/index.cjs'),
+    path.join(process.cwd(), 'src/preload/index.cjs'),
+  ];
+  const preloadPath = preloadCandidates.find((p) => fs.existsSync(p)) || path.join(__dirname, '../preload/index.cjs');
 
   mainWindow = new BrowserWindow({
     width: initialWidth,
@@ -109,7 +190,7 @@ function createWindow() {
     skipTaskbar: false,
     hasShadow: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false,
@@ -237,6 +318,9 @@ function initializeAssistant() {
     sensitivity: appConfig.wakeWordSensitivity,
   });
   wakeWordEngine.start();
+  if (appConfig.wakeWordEnabled) {
+    startNativeMicCapture();
+  }
 
   // 9. Gemini Live Client
   geminiClient = new GeminiLiveClient({
@@ -308,6 +392,11 @@ function setupTray() {
         click: () => {
           appConfig.wakeWordEnabled = !appConfig.wakeWordEnabled;
           wakeWordEngine?.updateConfig({ enabled: appConfig.wakeWordEnabled });
+          if (appConfig.wakeWordEnabled) {
+            startNativeMicCapture();
+          } else {
+            stopNativeMicCapture();
+          }
           saveConfigToDisk();
           updateMenu();
         },
@@ -365,8 +454,13 @@ function registerShortcuts() {
   // Global Shortcut 1: Ctrl+Space -> Activate / Listen
   try {
     globalShortcut.register('CommandOrControl+Space', () => {
+      console.log('[Shortcut] Ctrl+Space pressed: activating Sora');
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+      }
       orchestrator?.handleWakeWordTrigger();
-      mainWindow?.show();
     });
   } catch (err) {
     console.warn('Could not register Ctrl+Space shortcut:', err);
@@ -399,6 +493,11 @@ function setupIpcHandlers() {
         enabled: appConfig.wakeWordEnabled,
         sensitivity: appConfig.wakeWordSensitivity,
       });
+      if (appConfig.wakeWordEnabled) {
+        startNativeMicCapture();
+      } else {
+        stopNativeMicCapture();
+      }
     }
     if (newConfig.geminiApiKey || newConfig.geminiModel || newConfig.geminiVoice) {
       geminiClient?.updateConfig({
@@ -438,13 +537,15 @@ function setupIpcHandlers() {
   ipcMain.handle('send-audio-chunk', (_e, base64Chunk: string) => {
     if (isMuted) return;
 
-    // Convert chunk for local wake word engine
-    const int16 = base64ToInt16(base64Chunk);
-    wakeWordEngine?.processAudioChunk(int16);
+    // Fallback: if native arecord is not active, process chunk from renderer Web Audio
+    if (!nativeMicRunning) {
+      const int16 = base64ToInt16(base64Chunk);
+      wakeWordEngine?.processAudioChunk(int16);
 
-    // If Gemini session is actively listening, stream chunk
-    if (characterController?.getState() === 'LISTENING') {
-      geminiClient?.sendAudioChunk(base64Chunk);
+      // If Gemini session is actively listening, stream chunk
+      if (characterController?.getState() === 'LISTENING') {
+        geminiClient?.sendAudioChunk(base64Chunk);
+      }
     }
   });
 
@@ -519,6 +620,7 @@ app.whenReady().then(() => {
 });
 
 app.on('will-quit', () => {
+  stopNativeMicCapture();
   globalShortcut.unregisterAll();
   wakeWordEngine?.stop();
   browserService?.close().catch(() => {});

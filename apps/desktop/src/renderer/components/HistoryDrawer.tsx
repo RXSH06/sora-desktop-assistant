@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { History, X, Activity, CheckCircle, AlertTriangle, ShieldX } from 'lucide-react';
 import { AuditLogEntry } from '@assistant/permissions';
+import { getAssistantAPI } from '../api.js';
+
+const api = getAssistantAPI();
 
 interface HistoryDrawerProps {
   isOpen: boolean;
@@ -20,7 +23,7 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({ isOpen, onClose })
 
   const loadLogs = async () => {
     try {
-      const audit = await window.assistantAPI.getAuditLogs();
+      const audit = await api.getAuditLogs();
       setLogs(audit);
     } catch {}
   };

@@ -7,7 +7,10 @@ import { ConfirmationDialog } from './components/ConfirmationDialog.js';
 import { SettingsDrawer } from './components/SettingsDrawer.js';
 import { HistoryDrawer } from './components/HistoryDrawer.js';
 import { AudioController } from './components/AudioController.js';
+import { getAssistantAPI } from './api.js';
 import { Mic, MicOff, Settings, History, OctagonAlert, Send, Minus, GripHorizontal } from 'lucide-react';
+
+const api = getAssistantAPI();
 
 export const App: React.FC = () => {
   const [characterState, setCharacterState] = useState<CharacterState>('IDLE');
@@ -40,12 +43,12 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     // Load configuration
-    window.assistantAPI.getConfig().then((cfg) => {
+    api.getConfig().then((cfg) => {
       if (cfg) setConfig(cfg);
     });
 
     // Subscribe to Character Events
-    const unsubChar = window.assistantAPI.onCharacterEvent((event) => {
+    const unsubChar = api.onCharacterEvent((event) => {
       setCharacterState(event.state);
       if (event.type === 'speech') {
         setSpeechText(event.text || '');
@@ -55,7 +58,7 @@ export const App: React.FC = () => {
     });
 
     // Subscribe to Confirmation Requests
-    const unsubConf = window.assistantAPI.onConfirmationRequired((req) => {
+    const unsubConf = api.onConfirmationRequired((req) => {
       setConfirmationReq(req);
     });
 
@@ -68,12 +71,12 @@ export const App: React.FC = () => {
   const handleToggleDrawer = (drawer: 'settings' | 'history') => {
     const next = activeDrawer === drawer ? null : drawer;
     setActiveDrawer(next);
-    window.assistantAPI.toggleDrawer(next !== null);
+    api.toggleDrawer(next !== null);
   };
 
   const handleCloseDrawers = () => {
     setActiveDrawer(null);
-    window.assistantAPI.toggleDrawer(false);
+    api.toggleDrawer(false);
   };
 
   const handleSendPrompt = async () => {
@@ -81,7 +84,7 @@ export const App: React.FC = () => {
     const prompt = textInput.trim();
     setTextInput('');
     setShowInput(false);
-    await window.assistantAPI.sendPrompt(prompt);
+    await api.sendPrompt(prompt);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -92,16 +95,16 @@ export const App: React.FC = () => {
 
   const handleConfirm = async (id: string) => {
     setConfirmationReq(null);
-    await window.assistantAPI.resolveConfirmation(id, true);
+    await api.resolveConfirmation(id, true);
   };
 
   const handleDeny = async (id: string) => {
     setConfirmationReq(null);
-    await window.assistantAPI.resolveConfirmation(id, false);
+    await api.resolveConfirmation(id, false);
   };
 
   const handleSaveConfig = async (updated: Partial<AppConfig>) => {
-    const newCfg = await window.assistantAPI.updateConfig(updated);
+    const newCfg = await api.updateConfig(updated);
     setConfig(newCfg);
   };
 
@@ -119,7 +122,7 @@ export const App: React.FC = () => {
 
         <div className="flex items-center space-x-1 app-no-drag">
           <button
-            onClick={() => window.assistantAPI.minimizeWindow()}
+            onClick={() => api.minimizeWindow()}
             className="p-1 hover:text-white hover:bg-gray-800 rounded transition-colors"
             title="Minimize"
           >
@@ -208,7 +211,7 @@ export const App: React.FC = () => {
             onClick={() => {
               const next = !isMuted;
               setIsMuted(next);
-              window.assistantAPI.setMicMuted(next);
+              api.setMicMuted(next);
             }}
             className={`p-1.5 rounded-full transition-colors ${
               isMuted ? 'text-rose-400 hover:bg-rose-950/50' : 'text-gray-300 hover:bg-gray-800'
@@ -262,7 +265,7 @@ export const App: React.FC = () => {
 
           {/* Emergency Stop Button */}
           <button
-            onClick={() => window.assistantAPI.emergencyStop()}
+            onClick={() => api.emergencyStop()}
             className="p-1.5 text-rose-500 hover:text-rose-400 hover:bg-rose-950/60 rounded-full transition-colors"
             title="Emergency Stop (Ctrl+Shift+Esc)"
           >
