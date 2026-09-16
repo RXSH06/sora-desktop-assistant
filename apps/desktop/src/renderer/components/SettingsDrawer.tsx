@@ -257,16 +257,67 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             </div>
 
             <div>
-              <label className="text-gray-200 font-medium block mb-1">Gemini Model</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-gray-200 font-medium block">Gemini Live Model</label>
+                <span className="text-[10px] text-indigo-400 font-mono">Live Bidirectional</span>
+              </div>
               <select
-                value={localConfig.geminiModel}
-                onChange={(e) => setLocalConfig({ ...localConfig, geminiModel: e.target.value })}
+                value={
+                  [
+                    'gemini-3.8-live',
+                    'models/gemini-3.8-live',
+                    'gemini-3.8-live-extended-thinking',
+                    'models/gemini-3.8-live-extended-thinking',
+                    'gemini-3.5-live-translate-preview',
+                    'models/gemini-3.5-live-translate-preview',
+                    'gemini-3.1-flash-live-preview',
+                    'models/gemini-3.1-flash-live-preview',
+                    'gemini-2.5-flash-native-audio-preview-12-2025',
+                    'models/gemini-2.5-flash-native-audio-preview-12-2025',
+                  ].includes(localConfig.geminiModel)
+                    ? localConfig.geminiModel.replace(/^models\//, '')
+                    : 'custom'
+                }
+                onChange={(e) => {
+                  if (e.target.value !== 'custom') {
+                    setLocalConfig({ ...localConfig, geminiModel: e.target.value });
+                  }
+                }}
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:border-indigo-500"
               >
-                <option value="models/gemini-2.0-flash-exp">models/gemini-2.0-flash-exp (Gemini Live Audio)</option>
-                <option value="models/gemini-2.0-flash">models/gemini-2.0-flash</option>
-                <option value="models/gemini-1.5-pro">models/gemini-1.5-pro</option>
+                <option value="gemini-3.8-live">Gemini 3.8 Live (Recommended)</option>
+                <option value="gemini-3.8-live-extended-thinking">Gemini 3.8 Live Extended Thinking (Deep reasoning)</option>
+                <option value="gemini-3.5-live-translate-preview">Gemini 3.5 Live Translate (Speech translation)</option>
+                <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live (Legacy/preview)</option>
+                <option value="gemini-2.5-flash-native-audio-preview-12-2025">Gemini 2.5 Flash Live / Native Audio (Older preview)</option>
+                <option value="custom">Custom Live Model ID...</option>
               </select>
+
+              {(![
+                'gemini-3.8-live',
+                'models/gemini-3.8-live',
+                'gemini-3.8-live-extended-thinking',
+                'models/gemini-3.8-live-extended-thinking',
+                'gemini-3.5-live-translate-preview',
+                'models/gemini-3.5-live-translate-preview',
+                'gemini-3.1-flash-live-preview',
+                'models/gemini-3.1-flash-live-preview',
+                'gemini-2.5-flash-native-audio-preview-12-2025',
+                'models/gemini-2.5-flash-native-audio-preview-12-2025',
+              ].includes(localConfig.geminiModel)) && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    value={localConfig.geminiModel}
+                    onChange={(e) => setLocalConfig({ ...localConfig, geminiModel: e.target.value })}
+                    placeholder="e.g. gemini-3.8-live"
+                    className="w-full bg-gray-800 border border-indigo-500 rounded-lg px-3 py-2 text-gray-100 text-xs focus:outline-none"
+                  />
+                  <span className="text-[10px] text-gray-500 mt-1 block">
+                    Enter the exact Gemini live model identifier.
+                  </span>
+                </div>
+              )}
             </div>
 
             <div>
@@ -292,7 +343,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <label className="text-gray-200 font-medium block">Offline Wake Word</label>
-                <span className="text-[11px] text-gray-500">Detect wake word locally without cloud streaming</span>
+                <span className="text-[11px] text-gray-500">Detect wake word locally via openWakeWord</span>
               </div>
               <input
                 type="checkbox"
@@ -304,13 +355,35 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
             <div>
               <label className="text-gray-200 font-medium block mb-1">Wake Word Phrase</label>
-              <input
-                type="text"
-                value={localConfig.wakeWord}
-                onChange={(e) => setLocalConfig({ ...localConfig, wakeWord: e.target.value })}
-                placeholder="hey sora"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:border-indigo-500"
-              />
+              <select
+                value={
+                  ['hey jarvis', 'alexa', 'hey mycroft', 'hey sora'].includes(localConfig.wakeWord.toLowerCase())
+                    ? localConfig.wakeWord.toLowerCase()
+                    : 'custom'
+                }
+                onChange={(e) => {
+                  if (e.target.value !== 'custom') {
+                    setLocalConfig({ ...localConfig, wakeWord: e.target.value });
+                  }
+                }}
+                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:border-indigo-500 mb-2"
+              >
+                <option value="hey jarvis">Hey Jarvis (openWakeWord Neural - Proven)</option>
+                <option value="alexa">Alexa (openWakeWord Neural - Proven)</option>
+                <option value="hey mycroft">Hey Mycroft (openWakeWord Neural - Proven)</option>
+                <option value="hey sora">Hey Sora (Custom Phrase)</option>
+                <option value="custom">Custom Wake Word Phrase...</option>
+              </select>
+
+              {(!['hey jarvis', 'alexa', 'hey mycroft', 'hey sora'].includes(localConfig.wakeWord.toLowerCase())) && (
+                <input
+                  type="text"
+                  value={localConfig.wakeWord}
+                  onChange={(e) => setLocalConfig({ ...localConfig, wakeWord: e.target.value })}
+                  placeholder="Enter custom wake word phrase..."
+                  className="w-full bg-gray-800 border border-indigo-500 rounded-lg px-3 py-2 text-gray-100 focus:outline-none text-xs"
+                />
+              )}
             </div>
 
             <div>

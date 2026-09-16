@@ -18,7 +18,15 @@ export class GeminiLiveClient {
   }
 
   updateConfig(config: Partial<GeminiLiveConfig>): void {
+    const modelChanged = config.model && config.model !== this.config.model;
+    const keyChanged = config.apiKey && config.apiKey !== this.config.apiKey;
+    const voiceChanged = config.voice && config.voice !== this.config.voice;
     this.config = { ...this.config, ...config };
+    if ((modelChanged || keyChanged || voiceChanged) && this.isConnected()) {
+      console.log('[GeminiLiveClient] Config changed, reconnecting session with new model:', this.config.model);
+      this.disconnect();
+      this.connect().catch((err) => console.error('[GeminiLiveClient] Reconnection error:', err));
+    }
   }
 
   subscribe(listener: (event: GeminiLiveEvent) => void): () => void {
@@ -109,6 +117,7 @@ export class GeminiLiveClient {
               },
             },
           },
+          ...(model.includes('thinking') ? { thinkingConfig: { thinkingLevel: 'HIGH' } } : {}),
         },
       },
     };
