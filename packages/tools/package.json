@@ -1,0 +1,19 @@
+{
+  "name": "@octo/tools",
+  "version": "1.0.0",
+  "description": "Secure tool registry and system automation tools for Octo Assistant",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@octo/permissions": "*",
+    "@octo/memory": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "type": "module"
+}

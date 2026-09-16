@@ -1,0 +1,21 @@
+{
+  "name": "@octo/drive",
+  "version": "1.0.0",
+  "description": "Google Drive tools for Octo Desktop Assistant",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@octo/tools": "*",
+    "@octo/permissions": "*",
+    "@octo/gmail": "*",
+    "googleapis": "^146.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "type": "module"
+}

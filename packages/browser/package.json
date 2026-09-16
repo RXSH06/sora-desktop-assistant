@@ -1,0 +1,20 @@
+{
+  "name": "@octo/browser",
+  "version": "1.0.0",
+  "description": "Isolated Playwright browser automation tools for Octo Assistant",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@octo/tools": "*",
+    "@octo/permissions": "*",
+    "playwright": "^1.50.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "type": "module"
+}

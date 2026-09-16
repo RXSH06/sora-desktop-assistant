@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-electron/
+dist-renderer/
+*.tsbuildinfo
+.env
+.env.local
+google_tokens.enc
+memory.json
+config.json
+*.log
+*.png
+*.wav
+release/
+.vite/

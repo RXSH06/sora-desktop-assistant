@@ -1,0 +1,34 @@
+{
+  "name": "octo-desktop-assistant",
+  "version": "1.0.0",
+  "description": "Production-quality Linux desktop AI assistant for Ubuntu 24.04 powered by Gemini Live",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run --workspace=apps/desktop dev",
+    "build": "npm run build:packages && npm run --workspace=apps/desktop build",
+    "build:packages": "npm run --workspace=@octo/permissions build && npm run --workspace=@octo/character build && npm run --workspace=@octo/memory build && npm run --workspace=@octo/audio build && npm run --workspace=@octo/tools build && npm run --workspace=@octo/wakeword build && npm run --workspace=@octo/browser build && npm run --workspace=@octo/gmail build && npm run --workspace=@octo/drive build && npm run --workspace=@octo/gemini build && npm run --workspace=@octo/agent build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "npm run --workspace=apps/desktop start"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "@types/ws": "^8.5.14",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  },
+  "keywords": [
+    "desktop-assistant",
+    "gemini-live",
+    "ubuntu",
+    "ai-agent",
+    "electron",
+    "voice-assistant"
+  ],
+  "author": "Desktop Assistant Team",
+  "license": "MIT"
+}

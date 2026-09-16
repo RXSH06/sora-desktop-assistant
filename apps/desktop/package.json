@@ -1,0 +1,38 @@
+{
+  "name": "@octo/desktop",
+  "version": "1.0.0",
+  "description": "Desktop UI and Electron runtime for Octo AI Companion",
+  "main": "dist-electron/main/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build && tsc -p tsconfig.electron.json",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@octo/agent": "*",
+    "@octo/audio": "*",
+    "@octo/browser": "*",
+    "@octo/character": "*",
+    "@octo/drive": "*",
+    "@octo/gemini": "*",
+    "@octo/gmail": "*",
+    "@octo/memory": "*",
+    "@octo/permissions": "*",
+    "@octo/tools": "*",
+    "@octo/wakeword": "*",
+    "dotenv": "^16.4.7",
+    "lucide-react": "^0.475.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^34.2.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0"
+  }
+}
