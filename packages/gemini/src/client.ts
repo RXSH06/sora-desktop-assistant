@@ -109,7 +109,9 @@ export class GeminiLiveClient {
       setup: {
         model,
         generationConfig: {
-          responseModalities: this.config.responseModalities || ['AUDIO'],
+          responseModalities: (this.config.responseModalities && this.config.responseModalities.includes('AUDIO'))
+            ? ['AUDIO']
+            : (this.config.responseModalities || ['AUDIO']),
           speechConfig: {
             voiceConfig: {
               prebuiltVoiceConfig: {

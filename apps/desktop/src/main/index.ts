@@ -404,7 +404,7 @@ You have access to safe desktop tools to help the user manage files, control app
 Be concise, polite, natural, and helpful. Always confirm before deleting or sending emails.
 ${memoryStore.getSystemPromptContext()}`,
     tools: toolRegistry.getGeminiFunctionDeclarations(),
-    responseModalities: ['AUDIO', 'TEXT'],
+    responseModalities: ['AUDIO'],
   });
 
   geminiClient.subscribe((event) => {
