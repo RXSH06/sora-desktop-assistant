@@ -48,7 +48,7 @@ let appConfig: AppConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
   geminiModel: process.env.GEMINI_MODEL || 'models/gemini-2.0-flash-exp',
   geminiVoice: process.env.GEMINI_VOICE || 'Puck',
-  wakeWord: process.env.WAKE_WORD || 'hey nova',
+  wakeWord: process.env.WAKE_WORD || 'hey sora',
   wakeWordEnabled: process.env.WAKE_WORD_ENABLED !== 'false',
   wakeWordSensitivity: parseFloat(process.env.WAKE_WORD_SENSITIVITY || '0.6'),
   alwaysOnTop: process.env.APP_ALWAYS_ON_TOP !== 'false',
@@ -63,7 +63,7 @@ let appConfig: AppConfig = {
 
 function saveConfigToDisk() {
   try {
-    const configDir = path.join(os.homedir(), '.config', 'nova-assistant');
+    const configDir = path.join(os.homedir(), '.config', 'sora-assistant');
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true });
     }
@@ -75,7 +75,7 @@ function saveConfigToDisk() {
 
 function loadConfigFromDisk() {
   try {
-    const filePath = path.join(os.homedir(), '.config', 'nova-assistant', 'config.json');
+    const filePath = path.join(os.homedir(), '.config', 'sora-assistant', 'config.json');
     if (fs.existsSync(filePath)) {
       const saved = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       appConfig = { ...appConfig, ...saved };
@@ -243,7 +243,7 @@ function initializeAssistant() {
     apiKey: appConfig.geminiApiKey,
     model: appConfig.geminiModel,
     voice: appConfig.geminiVoice as any,
-    systemInstruction: `You are Nova, a helpful, proactive, and charming desktop AI companion living on Ubuntu Linux.
+    systemInstruction: `You are Sora, a helpful, proactive, and charming desktop AI companion living on Ubuntu Linux.
 You have access to safe desktop tools to help the user manage files, control applications, search emails in Gmail, automate web browser actions, and interact with the system.
 Be concise, polite, natural, and helpful. Always confirm before deleting or sending emails.
 ${memoryStore.getSystemPromptContext()}`,
@@ -290,11 +290,11 @@ function setupTray() {
   }
   const trayIcon = nativeImage.createFromBuffer(iconCanvas, { width: size, height: size });
   tray = new Tray(trayIcon);
-  tray.setToolTip('Nova Desktop Assistant');
+  tray.setToolTip('Sora Desktop Assistant');
 
   const updateMenu = () => {
     const contextMenu = Menu.buildFromTemplate([
-      { label: 'Nova AI Assistant', enabled: false },
+      { label: 'Sora AI Assistant', enabled: false },
       { type: 'separator' },
       {
         label: isMuted ? 'Unmute Microphone' : 'Mute Microphone',

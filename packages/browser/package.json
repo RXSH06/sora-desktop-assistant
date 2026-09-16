@@ -1,7 +1,7 @@
 {
   "name": "@assistant/browser",
   "version": "1.0.0",
-  "description": "Isolated Playwright browser automation tools for Nova Assistant",
+  "description": "Isolated Playwright browser automation tools for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

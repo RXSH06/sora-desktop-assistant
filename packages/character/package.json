@@ -1,7 +1,7 @@
 {
   "name": "@assistant/character",
   "version": "1.0.0",
-  "description": "Character state system and rendering abstractions for Nova Desktop Assistant",
+  "description": "Character state system and rendering abstractions for Sora Desktop Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

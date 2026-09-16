@@ -16,5 +16,5 @@ if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_gemini_api_key_here" 
     echo "⚠️ Warning: GEMINI_API_KEY is not set in .env. Voice & Gemini features will prompt for key in settings."
 fi
 
-echo "🚀 Starting Nova Desktop Assistant on Ubuntu..."
+echo "🚀 Starting Sora Desktop Assistant on Ubuntu..."
 exec npm start

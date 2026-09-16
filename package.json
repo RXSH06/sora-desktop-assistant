@@ -1,5 +1,5 @@
 {
-  "name": "nova-desktop-assistant",
+  "name": "sora-desktop-assistant",
   "version": "1.0.0",
   "description": "Production-quality Linux desktop AI assistant for Ubuntu 24.04 powered by Gemini Live",
   "private": true,

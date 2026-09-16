@@ -1,4 +1,4 @@
-# Nova Assistant: Tool Registry & Developer Guide
+# Sora Assistant: Tool Registry & Developer Guide
 
 ## 1. Built-in Tools
 
@@ -57,7 +57,7 @@
 
 ## 2. Adding a New Custom Tool
 
-To add a new tool to Nova Assistant, implement the `AssistantTool` interface:
+To add a new tool to Sora Assistant, implement the `AssistantTool` interface:
 
 ```typescript
 import { AssistantTool, ToolResult } from '@assistant/tools';

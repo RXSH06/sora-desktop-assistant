@@ -7,13 +7,13 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 AUTOSTART_DIR="$HOME/.config/autostart"
 mkdir -p "$AUTOSTART_DIR"
 
-DESKTOP_FILE="$AUTOSTART_DIR/nova-assistant.desktop"
+DESKTOP_FILE="$AUTOSTART_DIR/sora-assistant.desktop"
 
 cat << EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Nova Desktop Assistant
+Name=Sora Desktop Assistant
 Comment=AI Desktop Companion with Gemini Live
 Exec=bash "$ROOT_DIR/scripts/launch.sh"
 Path=$ROOT_DIR

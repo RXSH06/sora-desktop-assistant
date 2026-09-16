@@ -1,7 +1,7 @@
 {
   "name": "@assistant/gemini",
   "version": "1.0.0",
-  "description": "Gemini Live API client and WebSocket streaming for Nova Assistant",
+  "description": "Gemini Live API client and WebSocket streaming for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

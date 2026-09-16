@@ -1,7 +1,7 @@
 {
   "name": "@assistant/drive",
   "version": "1.0.0",
-  "description": "Google Drive tools for Nova Desktop Assistant",
+  "description": "Google Drive tools for Sora Desktop Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

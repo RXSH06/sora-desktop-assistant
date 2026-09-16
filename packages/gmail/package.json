@@ -1,7 +1,7 @@
 {
   "name": "@assistant/gmail",
   "version": "1.0.0",
-  "description": "Secure Gmail API integration and email tools for Nova Assistant",
+  "description": "Secure Gmail API integration and email tools for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

@@ -1,7 +1,7 @@
 {
   "name": "@assistant/tools",
   "version": "1.0.0",
-  "description": "Secure tool registry and system automation tools for Nova Assistant",
+  "description": "Secure tool registry and system automation tools for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

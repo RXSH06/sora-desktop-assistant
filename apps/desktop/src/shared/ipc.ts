@@ -19,7 +19,7 @@ export interface AppConfig {
   hasGoogleAuth: boolean;
 }
 
-export interface NovaAPI {
+export interface SoraAPI {
   // Config
   getConfig(): Promise<AppConfig>;
   updateConfig(config: Partial<AppConfig>): Promise<AppConfig>;
@@ -66,6 +66,6 @@ export interface NovaAPI {
 
 declare global {
   interface Window {
-    assistantAPI: NovaAPI;
+    assistantAPI: SoraAPI;
   }
 }

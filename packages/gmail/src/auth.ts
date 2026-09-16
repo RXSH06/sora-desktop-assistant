@@ -27,7 +27,7 @@ export class GoogleAuthService {
     this.clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
     this.redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:8089/oauth2callback';
 
-    const configDir = path.join(os.homedir(), '.config', 'nova-assistant');
+    const configDir = path.join(os.homedir(), '.config', 'sora-assistant');
     if (!fs.existsSync(configDir)) {
       try {
         fs.mkdirSync(configDir, { recursive: true });
@@ -96,7 +96,7 @@ export class GoogleAuthService {
                 res.end(`
                   <div style="font-family:sans-serif; text-align:center; padding:50px;">
                     <h2 style="color:#10b981;">Authentication Successful!</h2>
-                    <p>You can close this tab and return to Nova Assistant.</p>
+                    <p>You can close this tab and return to Sora Assistant.</p>
                   </div>
                 `);
                 server.close();
@@ -133,7 +133,7 @@ export class GoogleAuthService {
   private getEncryptionKey(): Buffer {
     // Generate machine/user specific salt key
     const machineId = os.hostname() + os.userInfo().username;
-    return crypto.scryptSync(machineId, 'nova-salt', 32);
+    return crypto.scryptSync(machineId, 'sora-salt', 32);
   }
 
   private saveTokens(tokens: any): void {

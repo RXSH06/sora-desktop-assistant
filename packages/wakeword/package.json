@@ -1,7 +1,7 @@
 {
   "name": "@assistant/wakeword",
   "version": "1.0.0",
-  "description": "Offline local wake-word detection engine for Nova Assistant",
+  "description": "Offline local wake-word detection engine for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

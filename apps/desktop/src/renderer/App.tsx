@@ -19,7 +19,7 @@ export const App: React.FC = () => {
     geminiApiKey: '',
     geminiModel: 'models/gemini-2.0-flash-exp',
     geminiVoice: 'Puck',
-    wakeWord: 'hey nova',
+    wakeWord: 'hey sora',
     wakeWordEnabled: true,
     wakeWordSensitivity: 0.6,
     alwaysOnTop: true,
@@ -113,7 +113,7 @@ export const App: React.FC = () => {
       <div className="w-full flex items-center justify-between px-2 py-1 mb-1 text-gray-400 bg-gray-900/60 rounded-lg backdrop-blur-sm border border-gray-800/60 app-drag-region cursor-move">
         <div className="flex items-center space-x-1 text-[11px] font-medium tracking-wide">
           <GripHorizontal size={13} className="text-gray-500" />
-          <span className="text-indigo-400 font-bold">NOVA</span>
+          <span className="text-indigo-400 font-bold">SORA</span>
           <span className="text-gray-500 text-[9px] uppercase">{characterState}</span>
         </div>
 

@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { NovaAPI, AppConfig } from '../shared/ipc.js';
+import { SoraAPI, AppConfig } from '../shared/ipc.js';
 import { CharacterEvent, ConfirmationRequest } from '@assistant/character';
 import { PermissionLevel } from '@assistant/permissions';
 import { MemoryCategory } from '@assistant/memory';
 
-const api: NovaAPI = {
+const api: SoraAPI = {
   getConfig: () => ipcRenderer.invoke('get-config'),
   updateConfig: (config: Partial<AppConfig>) => ipcRenderer.invoke('update-config', config),
 

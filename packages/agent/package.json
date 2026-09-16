@@ -1,7 +1,7 @@
 {
   "name": "@assistant/agent",
   "version": "1.0.0",
-  "description": "Agent orchestration layer and task state management for Nova Assistant",
+  "description": "Agent orchestration layer and task state management for Sora Assistant",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {

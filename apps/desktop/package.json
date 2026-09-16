@@ -1,7 +1,7 @@
 {
   "name": "@assistant/desktop",
   "version": "1.0.0",
-  "description": "Desktop UI and Electron runtime for Nova AI Companion",
+  "description": "Desktop UI and Electron runtime for Sora AI Companion",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "scripts": {

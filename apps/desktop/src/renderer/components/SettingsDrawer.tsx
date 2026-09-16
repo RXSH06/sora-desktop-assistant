@@ -96,7 +96,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800 bg-gray-950/50">
         <div className="flex items-center space-x-2 text-indigo-400 font-semibold text-sm">
           <Settings size={16} />
-          <span>Nova Assistant Settings</span>
+          <span>Sora Assistant Settings</span>
         </div>
         <button
           onClick={onClose}
@@ -192,7 +192,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <div className="flex items-center justify-between">
               <div>
                 <label className="text-gray-200 font-medium block">Launch on OS Boot</label>
-                <span className="text-[11px] text-gray-500">Start Nova Assistant on Ubuntu login</span>
+                <span className="text-[11px] text-gray-500">Start Sora Assistant on Ubuntu login</span>
               </div>
               <input
                 type="checkbox"
@@ -305,7 +305,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 type="text"
                 value={localConfig.wakeWord}
                 onChange={(e) => setLocalConfig({ ...localConfig, wakeWord: e.target.value })}
-                placeholder="hey nova"
+                placeholder="hey sora"
                 className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-100 focus:outline-none focus:border-indigo-500"
               />
             </div>
@@ -342,7 +342,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         {activeTab === 'permissions' && (
           <div className="space-y-3">
             <p className="text-gray-400 text-[11px]">
-              Configure which actions Nova can execute safely vs those that require explicit confirmation or are blocked.
+              Configure which actions Sora can execute safely vs those that require explicit confirmation or are blocked.
             </p>
 
             <div className="divide-y divide-gray-800 max-h-[300px] overflow-y-auto pr-1">
@@ -380,7 +380,7 @@ export const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
         {activeTab === 'memory' && (
           <div className="space-y-3">
             <p className="text-gray-400 text-[11px]">
-              Stored paths, projects, and shortcuts that Nova references during tasks.
+              Stored paths, projects, and shortcuts that Sora references during tasks.
             </p>
 
             {/* Add memory form */}

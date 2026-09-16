@@ -1,5 +1,5 @@
 export interface WakeWordConfig {
-  wakeWord: string; // e.g. "hey nova"
+  wakeWord: string; // e.g. "hey sora"
   enabled: boolean;
   sensitivity?: number; // 0.1 to 1.0, default 0.6
   modelPath?: string;
