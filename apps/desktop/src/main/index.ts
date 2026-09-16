@@ -50,9 +50,9 @@ let isMuted = false;
 // Persistent configuration state
 let appConfig: AppConfig = {
   geminiApiKey: process.env.GEMINI_API_KEY || '',
-  geminiModel: process.env.GEMINI_MODEL || 'models/gemini-2.0-flash-exp',
+  geminiModel: process.env.GEMINI_MODEL || 'models/gemini-3.8-live',
   geminiVoice: process.env.GEMINI_VOICE || 'Puck',
-  wakeWord: process.env.WAKE_WORD || 'hey sora',
+  wakeWord: process.env.WAKE_WORD || 'hey jarvis',
   wakeWordEnabled: process.env.WAKE_WORD_ENABLED !== 'false',
   wakeWordSensitivity: parseFloat(process.env.WAKE_WORD_SENSITIVITY || '0.6'),
   alwaysOnTop: process.env.APP_ALWAYS_ON_TOP !== 'false',
