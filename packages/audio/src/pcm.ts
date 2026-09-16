@@ -84,3 +84,22 @@ export function calculateRMS(samples: Float32Array | Int16Array): number {
     return Math.sqrt(sum / samples.length);
   }
 }
+
+export function generateWakeChime(sampleRate: number = 24000): string {
+  // 350ms bright, friendly two-tone bell chime (587Hz -> 880Hz)
+  const durationSec = 0.35;
+  const totalSamples = Math.floor(sampleRate * durationSec);
+  const int16Array = new Int16Array(totalSamples);
+  const half = Math.floor(totalSamples / 2);
+
+  for (let i = 0; i < totalSamples; i++) {
+    const t = i / sampleRate;
+    const freq = i < half ? 587.33 : 880.0;
+    const noteT = i < half ? t : (t - half / sampleRate);
+    const envelope = Math.exp(-noteT * 12);
+    const sampleVal = Math.sin(2 * Math.PI * freq * t) * envelope * 0.4;
+    int16Array[i] = Math.max(-32768, Math.min(32767, Math.round(sampleVal * 32767)));
+  }
+
+  return int16ToBase64(int16Array);
+}

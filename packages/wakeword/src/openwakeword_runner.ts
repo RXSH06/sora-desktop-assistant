@@ -14,10 +14,6 @@ export class OpenWakeWordRunner implements WakeWordEngine {
   private listeners: Set<(result: WakeWordDetectionResult) => void> = new Set();
   private lastDetectionTime: number = 0;
 
-  // Fallback acoustic detection for "hey sora"
-  private speechStreak: number = 0;
-  private silenceStreak: number = 0;
-
   async init(config: WakeWordConfig): Promise<void> {
     this.config = { ...this.config, ...config };
   }
@@ -136,49 +132,13 @@ export class OpenWakeWordRunner implements WakeWordEngine {
       return { detected: false, timestamp: Date.now() };
     }
 
-    // 1. Stream raw PCM chunk to openWakeWord neural process
+    // Stream raw 16kHz PCM chunk to openWakeWord neural process
     if (this.process?.stdin?.writable) {
       try {
         const buffer = Buffer.from(chunk.buffer, chunk.byteOffset, chunk.byteLength);
         this.process.stdin.write(buffer);
-      } catch {}
-    }
-
-    // 2. Hybrid acoustic cadence detection for "Hey Sora"
-    let sumSquares = 0;
-    for (let i = 0; i < chunk.length; i++) {
-      const val = chunk[i] / 32768;
-      sumSquares += val * val;
-    }
-    const rms = Math.sqrt(sumSquares / chunk.length);
-    const threshold = (1.1 - (this.config.sensitivity || 0.6)) * 0.04;
-
-    if (rms > threshold) {
-      this.speechStreak++;
-      this.silenceStreak = 0;
-    } else {
-      this.silenceStreak++;
-      if (this.silenceStreak > 3) {
-        if (this.speechStreak >= 4 && this.speechStreak <= 22) {
-          const now = Date.now();
-          if (now - this.lastDetectionTime > 2500) {
-            this.lastDetectionTime = now;
-            this.speechStreak = 0;
-            this.silenceStreak = 0;
-            const result: WakeWordDetectionResult = {
-              detected: true,
-              wakeWord: this.config.wakeWord,
-              score: Math.min(1, rms / threshold),
-              timestamp: now,
-            };
-            console.log(`[Acoustic Cadence] Detected wake word: "${result.wakeWord}"`);
-            for (const cb of this.listeners) {
-              cb(result);
-            }
-            return result;
-          }
-        }
-        this.speechStreak = 0;
+      } catch (err) {
+        // Non-fatal write error
       }
     }
 

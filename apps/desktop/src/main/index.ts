@@ -16,7 +16,7 @@ import { ToolRegistry, setNativeClipboard, setDesktopScreenshotProvider } from '
 import { BrowserService, createBrowserTools } from '@assistant/browser';
 import { GoogleAuthService, GmailService, createGmailTools } from '@assistant/gmail';
 import { DriveService, createDriveTools } from '@assistant/drive';
-import { AudioPlaybackQueue, base64ToInt16 } from '@assistant/audio';
+import { AudioPlaybackQueue, base64ToInt16, generateWakeChime } from '@assistant/audio';
 import { createWakeWordEngine } from '@assistant/wakeword';
 import { GeminiLiveClient } from '@assistant/gemini';
 import { AgentOrchestrator } from '@assistant/agent';
@@ -92,6 +92,71 @@ function loadConfigFromDisk() {
 let micProcess: ChildProcess | null = null;
 let nativeMicRunning = false;
 
+let userHasSpoken = false;
+let silenceFrames = 0;
+let listeningTimeoutTimer: NodeJS.Timeout | null = null;
+
+function resetListeningState() {
+  userHasSpoken = false;
+  silenceFrames = 0;
+  if (listeningTimeoutTimer) {
+    clearTimeout(listeningTimeoutTimer);
+    listeningTimeoutTimer = null;
+  }
+}
+
+function handleListeningAudioChunk(int16: Int16Array, base64Chunk: string) {
+  if (characterController?.getState() !== 'LISTENING') return;
+
+  // Stream chunk to Gemini Live session
+  geminiClient?.sendAudioChunk(base64Chunk);
+
+  // Compute RMS for voice speech detection
+  let sumSquares = 0;
+  for (let i = 0; i < int16.length; i++) {
+    const v = int16[i] / 32768;
+    sumSquares += v * v;
+  }
+  const rms = Math.sqrt(sumSquares / int16.length);
+
+  // Voice speech threshold (~0.02 is speech level)
+  if (rms > 0.02) {
+    userHasSpoken = true;
+    silenceFrames = 0;
+  } else if (userHasSpoken) {
+    silenceFrames++;
+    // ~1.1 seconds of silence after speaking -> turn complete!
+    if (silenceFrames >= 14) {
+      console.log('[Audio VAD] User finished speaking. Finalizing turn to Gemini 3.8 Live...');
+      resetListeningState();
+      characterController?.setState('THINKING');
+      characterController?.showStatus('Thinking...');
+      geminiClient?.finishUserTurn();
+    }
+  }
+}
+
+function onWakeWordTriggered(wakeWordName?: string) {
+  resetListeningState();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+    // Play pleasant greeting chime through speakers
+    mainWindow.webContents.send('audio-output', generateWakeChime(24000));
+  }
+  orchestrator?.handleWakeWordTrigger();
+
+  // If nothing spoken within 10s, return to IDLE
+  listeningTimeoutTimer = setTimeout(() => {
+    if (characterController?.getState() === 'LISTENING' && !userHasSpoken) {
+      console.log('[Listening Timeout] No speech detected in 10s, returning to IDLE.');
+      characterController?.setState('IDLE');
+      characterController?.hideStatus();
+    }
+  }, 10000);
+}
+
 function startNativeMicCapture() {
   if (micProcess || !appConfig.wakeWordEnabled) return;
 
@@ -121,12 +186,12 @@ function startNativeMicCapture() {
         Math.floor(chunk.length / 2)
       );
 
-      // Feed chunk to local acoustic wake word engine
+      // Feed chunk to neural wake word engine
       wakeWordEngine?.processAudioChunk(int16);
 
-      // If active conversation listening is on, stream to Gemini Live
+      // If active conversation listening is on, stream to Gemini Live with VAD turn detection
       if (characterController?.getState() === 'LISTENING') {
-        geminiClient?.sendAudioChunk(chunk.toString('base64'));
+        handleListeningAudioChunk(int16, chunk.toString('base64'));
       }
     });
 
@@ -239,6 +304,9 @@ function initializeAssistant() {
   // 1. Character Controller
   characterController = new DefaultCharacterController();
   characterController.subscribe((event) => {
+    if (event.type === 'state_change' && event.state !== 'LISTENING') {
+      resetListeningState();
+    }
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('character-event', event);
     }
@@ -316,6 +384,10 @@ function initializeAssistant() {
     wakeWord: appConfig.wakeWord,
     enabled: appConfig.wakeWordEnabled,
     sensitivity: appConfig.wakeWordSensitivity,
+  });
+  wakeWordEngine.onDetected((result: any) => {
+    console.log(`[Wake Word Engine] Detected: "${result.wakeWord}" (score: ${result.score?.toFixed(2)})`);
+    onWakeWordTriggered(result.wakeWord);
   });
   wakeWordEngine.start();
   if (appConfig.wakeWordEnabled) {
@@ -455,12 +527,7 @@ function registerShortcuts() {
   try {
     globalShortcut.register('CommandOrControl+Space', () => {
       console.log('[Shortcut] Ctrl+Space pressed: activating Sora');
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.show();
-        mainWindow.focus();
-      }
-      orchestrator?.handleWakeWordTrigger();
+      onWakeWordTriggered('manual shortcut');
     });
   } catch (err) {
     console.warn('Could not register Ctrl+Space shortcut:', err);
@@ -542,9 +609,9 @@ function setupIpcHandlers() {
       const int16 = base64ToInt16(base64Chunk);
       wakeWordEngine?.processAudioChunk(int16);
 
-      // If Gemini session is actively listening, stream chunk
+      // If Gemini session is actively listening, stream chunk with VAD turn completion
       if (characterController?.getState() === 'LISTENING') {
-        geminiClient?.sendAudioChunk(base64Chunk);
+        handleListeningAudioChunk(int16, base64Chunk);
       }
     }
   });

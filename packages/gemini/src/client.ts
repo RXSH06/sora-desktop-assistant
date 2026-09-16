@@ -188,6 +188,18 @@ export class GeminiLiveClient {
     this.ws?.send(JSON.stringify(message));
   }
 
+  finishUserTurn(): void {
+    if (!this.isConnected()) return;
+
+    const message = {
+      clientContent: {
+        turnComplete: true,
+      },
+    };
+
+    this.ws?.send(JSON.stringify(message));
+  }
+
   sendTextMessage(text: string): void {
     if (!this.isConnected()) return;
 

@@ -93,6 +93,8 @@ export class AgentOrchestrator {
   handleWakeWordTrigger(): void {
     this.character.setState('LISTENING');
     this.character.showStatus('Listening...');
+    this.character.speak("Hi! I'm listening. How can I help you?", 3500);
+
     // If not connected, connect to Gemini Live
     if (!this.gemini.isConnected()) {
       this.gemini.connect().catch((err) => {
