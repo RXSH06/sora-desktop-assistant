@@ -31,6 +31,13 @@ export class AgentOrchestrator {
   private isProcessingPrompt: boolean = false;
   private pendingConfirmationStep: TaskStep | null = null;
 
+  // Multi-turn conversation tracking
+  private liveSessionActive: boolean = false;
+  private conversationIdleTimer: NodeJS.Timeout | null = null;
+  private playbackDrainTimer: NodeJS.Timeout | null = null;
+  private waitingForPlaybackDrain: boolean = false;
+  private turnHadContent: boolean = false; // true if current turn had audio/text (not just tool calls)
+
   constructor(options: AgentOrchestratorOptions) {
     this.character = options.character;
     this.permissions = options.permissions;
@@ -91,6 +98,8 @@ export class AgentOrchestrator {
   }
 
   handleWakeWordTrigger(): void {
+    this.liveSessionActive = true;
+    this.clearConversationTimers();
     this.character.setState('LISTENING');
     this.character.showStatus('Listening...');
     this.character.speak("Hi! I'm listening. How can I help you?", 3500);
@@ -114,6 +123,8 @@ export class AgentOrchestrator {
     }
 
     this.log('INFO', `User prompt: "${cleanPrompt}"`);
+    this.liveSessionActive = true;
+    this.clearConversationTimers();
     this.character.setState('THINKING');
     this.character.showStatus('Thinking...');
 
@@ -142,12 +153,14 @@ export class AgentOrchestrator {
   }
 
   private handleGeminiText(text: string): void {
+    this.turnHadContent = true;
     this.log('DEBUG', `Gemini text: "${text}"`);
     this.character.speak(text, 6000);
     this.character.setState('SPEAKING');
   }
 
   private handleGeminiAudio(pcm24Base64: string): void {
+    this.turnHadContent = true;
     this.character.setState('SPEAKING');
     this.audioQueue.enqueueBase64(pcm24Base64);
   }
@@ -186,7 +199,7 @@ export class AgentOrchestrator {
       );
 
       // Return result to Gemini Live
-      this.gemini.sendToolResponse(call.id, result);
+      this.gemini.sendToolResponse(call.id, call.name, result);
     }
 
     this.character.setState('THINKING');
@@ -194,6 +207,8 @@ export class AgentOrchestrator {
 
   handleInterruption(): void {
     this.log('INFO', 'Assistant interrupted by user.');
+    this.liveSessionActive = false;
+    this.clearConversationTimers();
     this.audioQueue.interrupt();
     this.character.hideStatus();
     this.character.speak('Stopped.', 1500);
@@ -222,10 +237,56 @@ export class AgentOrchestrator {
   }
 
   private handleTurnComplete(): void {
+    const hadContent = this.turnHadContent;
+    this.turnHadContent = false; // reset for next turn
+
+    // If this turn had NO audio/text content (e.g., bare turn_complete after tool calls),
+    // don't transition — stay in current state and wait for Gemini's next response
+    if (!hadContent && this.liveSessionActive) {
+      this.log('DEBUG', 'Turn complete with no content (tool-only turn), staying in current state.');
+      return;
+    }
+
     this.character.hideStatus();
+
     if (this.audioQueue.hasPending()) {
+      // Audio is still queued — wait for it to finish before deciding next state
       this.character.setState('SPEAKING');
+      this.waitingForPlaybackDrain = true;
+      this.startPlaybackDrainCheck();
     } else {
+      // No pending audio — transition (with cooldown if live session)
+      this.onResponseFullyDelivered();
+    }
+  }
+
+  /**
+   * Called when all response audio has been played back (or there was none).
+   * If we're in an active live session, wait for speaker cooldown then re-enter LISTENING.
+   */
+  private onResponseFullyDelivered(): void {
+    this.waitingForPlaybackDrain = false;
+    this.clearPlaybackDrainTimer();
+
+    if (this.liveSessionActive && this.gemini.isConnected()) {
+      // CRITICAL: Wait 1.5s "speaker cooldown" before re-entering LISTENING.
+      // This prevents the mic from picking up Sora's own audio output from
+      // the speakers and sending it back to Gemini as new user input.
+      // During cooldown, state stays non-LISTENING so no audio is streamed.
+      this.log('INFO', 'Response delivered. Speaker cooldown before re-listening...');
+
+      setTimeout(() => {
+        if (this.liveSessionActive && this.gemini.isConnected()) {
+          this.log('INFO', 'Cooldown complete. Re-entering LISTENING for follow-up.');
+          this.character.setState('LISTENING');
+          this.character.showStatus('Listening...');
+
+          // Set a conversation idle timeout (20s of no speech → end session)
+          this.startConversationIdleTimer();
+        }
+      }, 1500);
+    } else {
+      // One-shot or disconnected: go to SUCCESS/IDLE
       if (this.currentTask && this.currentTask.steps.length > 0) {
         this.character.setState('SUCCESS');
         setTimeout(() => {
@@ -236,6 +297,80 @@ export class AgentOrchestrator {
       } else {
         this.character.setState('IDLE');
       }
+    }
+  }
+
+  /**
+   * Polls every 200ms to check if the audio playback queue has drained.
+   * Once empty, transitions to the next conversation state.
+   */
+  private startPlaybackDrainCheck(): void {
+    this.clearPlaybackDrainTimer();
+    this.playbackDrainTimer = setInterval(() => {
+      if (!this.audioQueue.hasPending()) {
+        this.onResponseFullyDelivered();
+      }
+    }, 200) as unknown as NodeJS.Timeout;
+  }
+
+  /**
+   * Starts a 20-second idle timer. If the user hasn't started speaking
+   * within 20s after Sora's response, end the live conversation session.
+   */
+  private startConversationIdleTimer(): void {
+    this.clearConversationIdleTimer();
+    this.conversationIdleTimer = setTimeout(() => {
+      if (this.character.getState() === 'LISTENING' && this.liveSessionActive) {
+        this.log('INFO', 'Conversation idle for 20s. Ending live session.');
+        this.endLiveSession();
+      }
+    }, 20000);
+  }
+
+  /**
+   * Notify the orchestrator that the user has started speaking during
+   * an active conversation. This resets the idle timer.
+   */
+  notifyUserSpeaking(): void {
+    if (this.liveSessionActive) {
+      this.clearConversationIdleTimer();
+    }
+  }
+
+  /**
+   * End the live conversation session and return to IDLE.
+   */
+  endLiveSession(): void {
+    this.liveSessionActive = false;
+    this.clearConversationTimers();
+    this.character.hideStatus();
+    if (this.character.getState() === 'LISTENING') {
+      this.character.speak('Let me know if you need anything else.', 3000);
+      this.character.setState('IDLE');
+    }
+  }
+
+  /** Returns whether a live multi-turn conversation is active */
+  isLiveSessionActive(): boolean {
+    return this.liveSessionActive;
+  }
+
+  private clearConversationTimers(): void {
+    this.clearConversationIdleTimer();
+    this.clearPlaybackDrainTimer();
+  }
+
+  private clearConversationIdleTimer(): void {
+    if (this.conversationIdleTimer) {
+      clearTimeout(this.conversationIdleTimer);
+      this.conversationIdleTimer = null;
+    }
+  }
+
+  private clearPlaybackDrainTimer(): void {
+    if (this.playbackDrainTimer) {
+      clearInterval(this.playbackDrainTimer);
+      this.playbackDrainTimer = null;
     }
   }
 
@@ -252,7 +387,11 @@ export class AgentOrchestrator {
     if (this.logs.length > 300) {
       this.logs.pop();
     }
-    console.log(`[${entry.level}] ${entry.message}`);
+    if (entry.data !== undefined) {
+      console.log(`[${entry.level}] ${entry.message}`, JSON.stringify(entry.data));
+    } else {
+      console.log(`[${entry.level}] ${entry.message}`);
+    }
   }
 
   private sanitizeLogData(data: unknown): unknown {

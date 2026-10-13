@@ -11,6 +11,7 @@ const api = {
   setMicMuted: (muted) => ipcRenderer.invoke('set-mic-muted', muted),
 
   sendAudioChunk: (base64Chunk) => ipcRenderer.invoke('send-audio-chunk', base64Chunk),
+  notifyPlaybackComplete: () => ipcRenderer.invoke('audio-playback-complete'),
 
   resolveConfirmation: (id, approved) =>
     ipcRenderer.invoke('resolve-confirmation', id, approved),

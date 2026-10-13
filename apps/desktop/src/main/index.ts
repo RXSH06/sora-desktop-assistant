@@ -92,13 +92,16 @@ function loadConfigFromDisk() {
 let micProcess: ChildProcess | null = null;
 let nativeMicRunning = false;
 
+let micMuteUntil = 0;
 let userHasSpoken = false;
 let silenceFrames = 0;
+let consecutiveSpeechFrames = 0; // require sustained speech before accepting
 let listeningTimeoutTimer: NodeJS.Timeout | null = null;
 
 function resetListeningState() {
   userHasSpoken = false;
   silenceFrames = 0;
+  consecutiveSpeechFrames = 0;
   if (listeningTimeoutTimer) {
     clearTimeout(listeningTimeoutTimer);
     listeningTimeoutTimer = null;
@@ -107,11 +110,11 @@ function resetListeningState() {
 
 function handleListeningAudioChunk(int16: Int16Array, base64Chunk: string) {
   if (characterController?.getState() !== 'LISTENING') return;
+  if (Date.now() < micMuteUntil) return;
 
-  // Stream chunk to Gemini Live session
+  // Always stream audio to Gemini Live continuously.
   geminiClient?.sendAudioChunk(base64Chunk);
 
-  // Compute RMS for voice speech detection
   let sumSquares = 0;
   for (let i = 0; i < int16.length; i++) {
     const v = int16[i] / 32768;
@@ -119,25 +122,41 @@ function handleListeningAudioChunk(int16: Int16Array, base64Chunk: string) {
   }
   const rms = Math.sqrt(sumSquares / int16.length);
 
-  // Voice speech threshold (~0.02 is speech level)
-  if (rms > 0.02) {
-    userHasSpoken = true;
+  // Voice speech threshold (~0.008 captures normal room speech, 0.02 was too high)
+  if (rms > 0.008) {
+    consecutiveSpeechFrames++;
+    if (consecutiveSpeechFrames >= 2 && !userHasSpoken) {
+      userHasSpoken = true;
+      console.log(`[Audio VAD] User speech confirmed (RMS: ${rms.toFixed(4)}) — clearing listening timeout.`);
+      if (listeningTimeoutTimer) {
+        clearTimeout(listeningTimeoutTimer);
+        listeningTimeoutTimer = null;
+      }
+      orchestrator?.notifyUserSpeaking();
+    }
     silenceFrames = 0;
-  } else if (userHasSpoken) {
-    silenceFrames++;
-    // ~1.1 seconds of silence after speaking -> turn complete!
-    if (silenceFrames >= 14) {
-      console.log('[Audio VAD] User finished speaking. Finalizing turn to Gemini 3.8 Live...');
-      resetListeningState();
-      characterController?.setState('THINKING');
-      characterController?.showStatus('Thinking...');
-      geminiClient?.finishUserTurn();
+  } else {
+    consecutiveSpeechFrames = 0;
+    if (userHasSpoken) {
+      silenceFrames++;
+      // After ~1.8s of silence (25 frames) after speaking, signal turn complete
+      if (silenceFrames >= 25) {
+        console.log('[Audio VAD] Silence detected after speech. Signaling turn complete to Gemini...');
+        userHasSpoken = false;
+        consecutiveSpeechFrames = 0;
+        silenceFrames = 0;
+        characterController?.setState('THINKING');
+        characterController?.showStatus('Thinking...');
+        geminiClient?.finishUserTurn();
+      }
     }
   }
 }
 
 function onWakeWordTriggered(wakeWordName?: string) {
   resetListeningState();
+  // Mute mic streaming for 750ms so the 350ms chime does not echo into Gemini Live
+  micMuteUntil = Date.now() + 750;
   if (mainWindow && !mainWindow.isDestroyed()) {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
@@ -147,35 +166,36 @@ function onWakeWordTriggered(wakeWordName?: string) {
   }
   orchestrator?.handleWakeWordTrigger();
 
-  // If nothing spoken within 10s, return to IDLE
+  // If nothing spoken within 15s (increased from 10s), return to IDLE
   listeningTimeoutTimer = setTimeout(() => {
     if (characterController?.getState() === 'LISTENING' && !userHasSpoken) {
-      console.log('[Listening Timeout] No speech detected in 10s, returning to IDLE.');
+      console.log('[Listening Timeout] No speech detected in 15s, returning to IDLE.');
       characterController?.setState('IDLE');
       characterController?.hideStatus();
     }
-  }, 10000);
+  }, 15000);
 }
 
 function startNativeMicCapture() {
   if (micProcess || !appConfig.wakeWordEnabled) return;
 
   try {
-    if (!fs.existsSync('/usr/bin/arecord')) {
-      console.log('[Native Mic] /usr/bin/arecord not found, falling back to Web Audio');
+    const useParec = fs.existsSync('/usr/bin/parec');
+    const hasArecord = fs.existsSync('/usr/bin/arecord');
+    if (!useParec && !hasArecord) {
+      console.log('[Native Mic] Neither parec nor arecord found, falling back to Web Audio');
       return;
     }
 
-    micProcess = spawn('/usr/bin/arecord', [
-      '-q',
-      '-r', '16000',
-      '-c', '1',
-      '-f', 'S16_LE',
-      '-t', 'raw',
-    ]);
+    const bin = useParec ? '/usr/bin/parec' : '/usr/bin/arecord';
+    const args = useParec
+      ? ['--rate=16000', '--channels=1', '--format=s16le', '--raw']
+      : ['-q', '-D', 'default', '-r', '16000', '-c', '1', '-f', 'S16_LE', '-t', 'raw'];
+
+    micProcess = spawn(bin, args);
 
     nativeMicRunning = true;
-    console.log('[Native Mic] arecord capture started for background wake word listening');
+    console.log(`[Native Mic] ${useParec ? 'parec (PulseAudio/PipeWire active device, e.g. earbuds)' : 'arecord'} capture started for background wake word listening`);
 
     micProcess.stdout?.on('data', (chunk: Buffer) => {
       if (isMuted) return;
@@ -304,18 +324,31 @@ function initializeAssistant() {
   // 1. Character Controller
   characterController = new DefaultCharacterController();
   characterController.subscribe((event) => {
-    if (event.type === 'state_change' && event.state !== 'LISTENING') {
-      resetListeningState();
+    if (event.type === 'state_change') {
+      // Reset VAD state when entering LISTENING (fresh turn)
+      if (event.state === 'LISTENING') {
+        resetListeningState();
+      }
+      // Reset VAD state if conversation ends (back to IDLE without active session)
+      if (event.state === 'IDLE') {
+        resetListeningState();
+      }
     }
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('character-event', event);
     }
   });
 
-  // 2. Permission Manager
+  // 2. Permission Manager — uses a Map to track pending confirmations
+  //    (resolved via ipcMain.handle('resolve-confirmation') in setupIpcHandlers)
+  const pendingConfirmations = new Map<string, (approved: boolean) => void>();
+  (globalThis as any).__pendingConfirmations = pendingConfirmations; // share with IPC handlers
+
   permissionManager = new DefaultPermissionManager({}, async (id, toolName, description, params) => {
     if (!mainWindow || mainWindow.isDestroyed()) return false;
     return new Promise<boolean>((resolve) => {
+      pendingConfirmations.set(id, resolve);
+
       mainWindow!.webContents.send('confirmation-required', {
         id,
         toolName,
@@ -324,13 +357,13 @@ function initializeAssistant() {
         createdAt: Date.now(),
       });
 
-      const onResponse = (_e: any, respId: string, approved: boolean) => {
-        if (respId === id) {
-          ipcMain.removeListener('resolve-confirmation', onResponse);
-          resolve(approved);
+      // Auto-deny after 60s if no response
+      setTimeout(() => {
+        if (pendingConfirmations.has(id)) {
+          pendingConfirmations.delete(id);
+          resolve(false);
         }
-      };
-      ipcMain.on('resolve-confirmation', onResponse);
+      }, 60000);
     });
   });
 
@@ -373,7 +406,10 @@ function initializeAssistant() {
       characterController?.setState('SPEAKING');
     },
     onPlaybackEnd: () => {
-      if (characterController?.getState() === 'SPEAKING') {
+      // Don't force IDLE if we're in an active live conversation —
+      // the orchestrator's playback drain check will handle transitioning
+      // back to LISTENING for multi-turn.
+      if (characterController?.getState() === 'SPEAKING' && !orchestrator?.isLiveSessionActive()) {
         characterController?.setState('IDLE');
       }
     },
@@ -400,8 +436,15 @@ function initializeAssistant() {
     model: appConfig.geminiModel,
     voice: appConfig.geminiVoice as any,
     systemInstruction: `You are Sora, a helpful, proactive, and charming desktop AI companion living on Ubuntu Linux.
-You have access to safe desktop tools to help the user manage files, control applications, search emails in Gmail, automate web browser actions, and interact with the system.
-Be concise, polite, natural, and helpful. Always confirm before deleting or sending emails.
+Your primary mode is friendly, natural spoken conversation.
+
+CRITICAL INSTRUCTIONS FOR TOOL CALLING:
+- ONLY call tools when the user explicitly asks you to take an action or perform a command (e.g. "open chrome", "find invoice.pdf", "send an email to Alex", "take a screenshot").
+- NEVER call tools for casual conversation, greetings, questions about yourself, jokes, general knowledge, inquiries, or conversational questions like "what can you do for me?", "what can you do?", "who are you?", "tell me a joke", or "how are you?".
+- When the user asks "what can you do for me?", "what are your capabilities?", or asks about who you are, ANSWER DIRECTLY AND VERBALLY USING NATURAL SPOKEN VOICE. Verbally explain that you are Sora, a desktop companion that can help manage files, open applications, search the web, take screenshots, check emails, and navigate Ubuntu. DO NOT CALL ANY TOOLS!
+- Always confirm before deleting files or sending emails.
+- Keep spoken responses friendly, concise, and natural.
+
 ${memoryStore.getSystemPromptContext()}`,
     tools: toolRegistry.getGeminiFunctionDeclarations(),
     responseModalities: ['AUDIO'],
@@ -411,6 +454,15 @@ ${memoryStore.getSystemPromptContext()}`,
     if (!mainWindow || mainWindow.isDestroyed()) return;
     if (event.type === 'audio') {
       mainWindow.webContents.send('audio-output', event.pcm24Base64);
+    } else if (event.type === 'user_speech') {
+      console.log(`[Assistant UI] Heard input: "${event.text}"`);
+      characterController?.showStatus(`Heard: "${event.text}"`);
+      mainWindow.webContents.send('character-event', {
+        type: 'speech',
+        state: characterController?.getState() || 'LISTENING',
+        text: `You: "${event.text}"`,
+        timestamp: Date.now(),
+      });
     } else if (event.type === 'interrupted') {
       mainWindow.webContents.send('audio-interrupt');
     }
@@ -426,6 +478,13 @@ ${memoryStore.getSystemPromptContext()}`,
     audioQueue,
     wakeWord: wakeWordEngine,
   });
+
+  // Pre-connect to Gemini Live so first wake word query has zero connection latency
+  if (appConfig.geminiApiKey) {
+    geminiClient.connect().catch((err) => {
+      console.warn('[GeminiLive] Initial pre-connect:', err.message);
+    });
+  }
 }
 
 function setupTray() {
@@ -613,6 +672,23 @@ function setupIpcHandlers() {
       if (characterController?.getState() === 'LISTENING') {
         handleListeningAudioChunk(int16, base64Chunk);
       }
+    }
+  });
+
+  // Renderer reports that every audio chunk it was given has finished
+  // playing. Without this the playback queue never drains, the character
+  // stays stuck in SPEAKING, and the mic (gated on LISTENING) is never
+  // streamed to Gemini again.
+  ipcMain.handle('audio-playback-complete', () => {
+    audioQueue?.markAllPlayed();
+  });
+
+  ipcMain.handle('resolve-confirmation', (_e, id: string, approved: boolean) => {
+    const pendingConfirmations = (globalThis as any).__pendingConfirmations as Map<string, (approved: boolean) => void> | undefined;
+    if (pendingConfirmations?.has(id)) {
+      const resolve = pendingConfirmations.get(id)!;
+      pendingConfirmations.delete(id);
+      resolve(approved);
     }
   });
 

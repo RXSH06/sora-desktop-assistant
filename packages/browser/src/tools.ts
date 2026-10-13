@@ -4,7 +4,7 @@ import { BrowserService } from './service.js';
 export function createBrowserTools(browserService: BrowserService): AssistantTool[] {
   const browserOpenTool: AssistantTool = {
     name: 'browser_open',
-    description: 'Open a webpage URL in the controlled browser',
+    description: 'Open a webpage URL in the controlled browser. ONLY call this when the user explicitly gives a URL or commands to open a specific website in the browser.',
     permissionLevel: 'SAFE',
     parameters: {
       type: 'object',
@@ -112,7 +112,7 @@ export function createBrowserTools(browserService: BrowserService): AssistantToo
 
   const browserScreenshotTool: AssistantTool = {
     name: 'browser_screenshot',
-    description: 'Capture a screenshot of the currently open webpage',
+    description: 'Capture a screenshot of the currently open webpage. ONLY call this when the user explicitly commands to capture or screenshot the browser webpage.',
     permissionLevel: 'SAFE',
     parameters: {
       type: 'object',

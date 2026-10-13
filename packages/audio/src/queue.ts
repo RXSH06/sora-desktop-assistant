@@ -39,6 +39,15 @@ export class AudioPlaybackQueue {
   }
 
   interrupt(): void {
+    this.markAllPlayed();
+  }
+
+  /**
+   * Called when the renderer confirms that every chunk it was sent has
+   * finished playing. Drains the mirror queue so `hasPending()` reflects
+   * real playback instead of growing forever.
+   */
+  markAllPlayed(): void {
     this.queue = [];
     if (this.isPlaying) {
       this.isPlaying = false;

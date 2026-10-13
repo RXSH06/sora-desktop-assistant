@@ -77,6 +77,8 @@ class FallbackAssistantAPI implements SoraAPI {
     // Process audio locally or ignore in browser preview
   }
 
+  async notifyPlaybackComplete(): Promise<void> {}
+
   async resolveConfirmation(id: string, approved: boolean): Promise<void> {
     this.emitChar({
       type: 'confirmation_resolved',

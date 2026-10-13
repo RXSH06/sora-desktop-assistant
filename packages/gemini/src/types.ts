@@ -29,6 +29,7 @@ export type GeminiLiveEvent =
   | { type: 'disconnected'; reason?: string }
   | { type: 'audio'; pcm24Base64: string }
   | { type: 'text'; text: string }
+  | { type: 'user_speech'; text: string }
   | { type: 'interrupted' }
   | { type: 'turn_complete' }
   | { type: 'tool_call'; toolCalls: GeminiLiveToolCall[] }

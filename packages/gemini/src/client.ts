@@ -121,6 +121,14 @@ export class GeminiLiveClient {
           },
           ...(model.includes('thinking') ? { thinkingConfig: { thinkingLevel: 'HIGH' } } : {}),
         },
+        inputAudioTranscription: {},
+        // Enable server-side Voice Activity Detection (VAD).
+        // Must be a top-level field on `setup`, NOT inside `generationConfig`.
+        realtimeInputConfig: {
+          automaticActivityDetection: {
+            disabled: false,
+          },
+        },
       },
     };
 
@@ -145,9 +153,42 @@ export class GeminiLiveClient {
     try {
       const parsed = JSON.parse(data.toString());
 
+      // Debug: log all message types received from server
+      const msgKeys = Object.keys(parsed);
+      if (!parsed.serverContent?.modelTurn?.parts?.some((p: any) => p.inlineData)) {
+        // Log everything except raw audio data (too noisy)
+        console.log('[GeminiLive] Message received:', msgKeys.join(', '),
+          parsed.setupComplete ? '(setup ack)' : '',
+          parsed.serverContent?.turnComplete ? '(turn_complete)' : '',
+          parsed.serverContent?.interrupted ? '(interrupted)' : '',
+          parsed.toolCall ? `(tool_call: ${parsed.toolCall.functionCalls?.map((f:any) => f.name).join(', ')})` : '',
+        );
+      }
+
+      // 0. Setup complete acknowledgment
+      if (parsed.setupComplete) {
+        console.log('[GeminiLive] Setup complete — server-side VAD active, ready for audio.');
+        return;
+      }
+
+      // Check for user speech transcription from Gemini Live ASR
+      const interimText = parsed.serverContent?.interimInputTranscription?.text ||
+                          parsed.serverContent?.interim_input_transcription?.text;
+      if (interimText) {
+        console.log(`[GeminiLive ASR (interim)] "${interimText}"`);
+      }
+
+      const finalText = parsed.serverContent?.inputTranscription?.text ||
+                        parsed.serverContent?.input_transcription?.text;
+      if (finalText) {
+        console.log(`[GeminiLive ASR (final)] "${finalText}"`);
+        this.emit({ type: 'user_speech', text: finalText });
+      }
+
       // 1. Check for serverContent
       if (parsed.serverContent) {
         if (parsed.serverContent.interrupted) {
+          console.log('[GeminiLive] Server detected barge-in interruption.');
           this.emit({ type: 'interrupted' });
         }
 
@@ -170,6 +211,7 @@ export class GeminiLiveClient {
 
       // 2. Check for toolCall
       if (parsed.toolCall?.functionCalls) {
+        console.log('[GeminiLive] Tool call details:', JSON.stringify(parsed.toolCall.functionCalls));
         const toolCalls: GeminiLiveToolCall[] = parsed.toolCall.functionCalls.map((fc: any) => ({
           id: fc.id || `call_${Date.now()}`,
           name: fc.name,
@@ -185,14 +227,16 @@ export class GeminiLiveClient {
   sendAudioChunk(pcm16Base64: string): void {
     if (!this.isConnected()) return;
 
+    // The v1alpha BidiGenerateContent endpoint expects `realtimeInput.audio`
+    // as a Blob ({ data, mimeType }). The legacy `mediaChunks` array is
+    // accepted by the server but silently discarded, so audio never reaches
+    // the model (no transcription, no response).
     const message = {
       realtimeInput: {
-        mediaChunks: [
-          {
-            mimeType: 'audio/pcm;rate=16000',
-            data: pcm16Base64,
-          },
-        ],
+        audio: {
+          data: pcm16Base64,
+          mimeType: 'audio/pcm;rate=16000',
+        },
       },
     };
 
@@ -229,15 +273,18 @@ export class GeminiLiveClient {
     this.ws?.send(JSON.stringify(message));
   }
 
-  sendToolResponse(toolCallId: string, output: unknown): void {
+  sendToolResponse(toolCallId: string, name: string, output: unknown): void {
     if (!this.isConnected()) return;
 
     const message = {
       toolResponse: {
         functionResponses: [
           {
-            response: { output },
             id: toolCallId,
+            name,
+            response: {
+              result: output,
+            },
           },
         ],
       },

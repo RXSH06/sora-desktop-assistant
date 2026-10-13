@@ -128,6 +128,11 @@ export const AudioController: React.FC<AudioControllerProps> = ({ isMuted, onMic
         activeSourcesRef.current.push(source);
         source.onended = () => {
           activeSourcesRef.current = activeSourcesRef.current.filter((s) => s !== source);
+          // Everything we were sent has finished playing — tell main so the
+          // playback queue can drain and the character can return to LISTENING.
+          if (activeSourcesRef.current.length === 0) {
+            api.notifyPlaybackComplete().catch(() => {});
+          }
         };
       } catch (err) {
         console.error('Error playing Gemini audio output:', err);

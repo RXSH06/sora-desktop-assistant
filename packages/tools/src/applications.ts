@@ -27,7 +27,7 @@ const KNOWN_APPLICATIONS: Record<string, { bin: string; defaultArgs?: string[]; 
 
 export const openApplicationTool: AssistantTool = {
   name: 'open_application',
-  description: 'Launch an approved desktop application safely (e.g. VS Code, KiCad, Chrome, Files, Terminal, Calc)',
+  description: 'Launch an approved desktop application safely (e.g. VS Code, Chrome, Terminal, Calc). ONLY invoke this when the user explicitly commands to open or launch an application (e.g. "open Chrome", "start VS Code"). NEVER call this tool for inquiries, capabilities questions, or general conversation.',
   permissionLevel: 'SAFE',
   parameters: {
     type: 'object',

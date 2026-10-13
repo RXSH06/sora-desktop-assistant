@@ -33,6 +33,7 @@ export interface SoraAPI {
 
   // Audio Stream
   sendAudioChunk(base64Chunk: string): Promise<void>;
+  notifyPlaybackComplete(): Promise<void>;
 
   // Confirmations
   resolveConfirmation(id: string, approved: boolean): Promise<void>;

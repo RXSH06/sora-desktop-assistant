@@ -15,6 +15,7 @@ const api: SoraAPI = {
   setMicMuted: (muted: boolean) => ipcRenderer.invoke('set-mic-muted', muted),
 
   sendAudioChunk: (base64Chunk: string) => ipcRenderer.invoke('send-audio-chunk', base64Chunk),
+  notifyPlaybackComplete: () => ipcRenderer.invoke('audio-playback-complete'),
 
   resolveConfirmation: (id: string, approved: boolean) =>
     ipcRenderer.invoke('resolve-confirmation', id, approved),

@@ -15,7 +15,7 @@ export function setDesktopScreenshotProvider(provider: () => Promise<string>) {
 
 export const screenshotTool: AssistantTool = {
   name: 'screenshot',
-  description: 'Take a screenshot of the current primary desktop screen',
+  description: 'Capture a screenshot of the primary desktop screen. ONLY invoke this when the user explicitly asks for a desktop screenshot (e.g. "take a screenshot", "capture my screen"). NEVER call this tool for general questions or conversations.',
   permissionLevel: 'SAFE',
   parameters: {
     type: 'object',

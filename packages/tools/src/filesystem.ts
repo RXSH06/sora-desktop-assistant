@@ -14,7 +14,7 @@ export function resolveUserPath(inputPath: string): string {
 // 1. search_files
 export const searchFilesTool: AssistantTool = {
   name: 'search_files',
-  description: 'Search for files or directories matching a query name within a target directory',
+  description: 'Search for existing files or directories by name within a target directory. ONLY call this tool when the user explicitly asks to find, locate, or search for files (e.g. "find report.pdf", "search for resume"). NEVER invoke this tool for general conversation, greetings, capabilities questions, or "what can you do".',
   permissionLevel: 'SAFE',
   parameters: {
     type: 'object',
